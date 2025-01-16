@@ -284,8 +284,8 @@ export class NoChanges extends React.Component<
     }
 
     return this.renderMenuBackedAction(
-      'view-repository-on-github',
-      `Open the repository page on GitHub in your browser`,
+      'view-repository-in-browser',
+      'Open the repository page on GitHub in your browser',
       undefined,
       this.onViewOnGitHubClicked
     )

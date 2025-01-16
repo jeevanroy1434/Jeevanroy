@@ -462,7 +462,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         return this.showRebaseDialog()
       case 'show-repository-settings':
         return this.showRepositorySettings()
-      case 'view-repository-on-github':
+      case 'view-repository-in-browser':
         return this.viewRepositoryOnGitHub()
       case 'compare-on-github':
         return this.openBranchOnGitHub('compare')

@@ -318,10 +318,10 @@ export function buildDefaultMenu({
       },
       separator,
       {
-        id: 'view-repository-on-github',
+        id: 'view-repository-in-browser',
         label: __DARWIN__ ? 'View on GitHub' : '&View on GitHub',
         accelerator: 'CmdOrCtrl+Shift+G',
-        click: emit('view-repository-on-github'),
+        click: emit('view-repository-in-browser'),
       },
       {
         label: __DARWIN__
