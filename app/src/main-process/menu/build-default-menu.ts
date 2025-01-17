@@ -45,6 +45,7 @@ export function buildDefaultMenu({
   isForcePushForCurrentRepository = false,
   isStashedChangesVisible = false,
   askForConfirmationWhenStashingAllChanges = true,
+  isGitHub = false,
 }: MenuLabelsEvent): Electron.Menu {
   contributionTargetDefaultBranch = truncateWithEllipsis(
     contributionTargetDefaultBranch,
@@ -319,7 +320,9 @@ export function buildDefaultMenu({
       separator,
       {
         id: 'view-repository-in-browser',
-        label: __DARWIN__ ? 'View on GitHub' : '&View on GitHub',
+        label: __DARWIN__
+          ? `View ${isGitHub ? 'on GitHub' : 'in your Browser'}`
+          : `&View ${isGitHub ? 'on GitHub' : 'in your Browser'}`,
         accelerator: 'CmdOrCtrl+Shift+G',
         click: emit('view-repository-in-browser'),
       },
