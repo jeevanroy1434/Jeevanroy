@@ -2723,7 +2723,7 @@ export class App extends React.Component<IAppProps, IAppState> {
       return
     }
 
-    const url = getGitHubHtmlUrl(repository)
+    const url = getGitHubHtmlUrl(repository) ?? repository.url
 
     if (url) {
       this.props.dispatcher.openInBrowser(url)
