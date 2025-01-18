@@ -13,4 +13,5 @@ module.exports = {
   // For now, @github Node modules required to be transformed by jest-esm-transformer
   transformIgnorePatterns: ['node_modules/(?!(@github))'],
   testEnvironment: 'jsdom',
+  testSequencer: '<rootDir>/jest.sequencer.js',
 }
