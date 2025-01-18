@@ -1,6 +1,6 @@
 import { envForProxy } from '../../../src/lib/git/environment'
 
-describe('git/environmnent', () => {
+describe('git/environment', () => {
   const httpProxyUrl = 'http://proxy:8888/'
   const httpsProxyUrl = 'https://proxy:8888/'
 

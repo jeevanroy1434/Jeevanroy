@@ -17,7 +17,7 @@ import { exec } from 'dugite'
 import { getStatusOrThrow } from '../../helpers/status'
 import { getTempFilePath } from '../../../src/lib/file-system'
 
-describe('git/cherry-pick', () => {
+describe('git/squash', () => {
   let repository: Repository
   let initialCommit: Commit
 
