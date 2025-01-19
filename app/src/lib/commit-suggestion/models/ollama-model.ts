@@ -41,6 +41,15 @@ export class OllamaModel extends AsyncBaseAIModel {
       )
 
       const elapsedTime = (Date.now() - startTime) / 1000
+      let d = response.data.response
+      // remove ```json and ``` from the response
+      if (typeof d === 'string' && d.includes('}') && d.includes('{')) {
+        if (d.startsWith('```json') && d.endsWith('```')) {
+          d = d.slice(7, -3).trim()
+        } else if (d.startsWith('```') && d.endsWith('```')) {
+          d = d.slice(3, -3).trim()
+        }
+      }
 
       if (response.status === 200) {
         const validation = this.isJsonValid(response.data.response)

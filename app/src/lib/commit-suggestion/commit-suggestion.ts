@@ -10,14 +10,16 @@ async function generateCommitSuggestion(
 ): Promise<[boolean, any]> {
   const diffs: string = await getDiffs(repository)
 
-  const prompt = `Analyze the following git changes and return a JSON object with the following keys, adhering strictly to the structure and guidelines below:
-  1. 'type': Specify the type of change, which must be one of the following options: [feat, fix, docs, style, refactor, test, chore].
-  2. 'scope': Indicate the specific component, module, or area of the code affected by the change (this field is optional and can be omitted if not applicable).
-  3. 'message': Provide a brief, clear description of the change, limited to 50 characters or fewer.
-  4. 'body': Include a detailed explanation of the change, explaining both what was changed and why it was necessary (this should be written in complete sentences).
-  5. 'breaking': A boolean value (true/false) indicating whether this change introduces a breaking change.
+  const prompt = `Analyze the provided Git diffs and generate only a JSON object with the structure below. Do not include any other text or explanation. The JSON object should strictly follow this format:
 
-  IMPORTANT: Only return the JSON object and no additional characters or commentary. The response must be in this format:
+  1. 'type': Identify the type of change. It must be one of the following: [feat, fix, docs, style, refactor, test, chore].
+  2. 'scope': (Optional) If applicable, specify the component, module, or area of the code that was affected. If there's no clear scope, leave this field out.
+  3. 'message': Provide a clear and concise summary of the change, with a maximum of 50 characters. Ensure it captures the essence of the change.
+  4. 'body': Provide a detailed explanation of what the change entails and why it was necessary. Include any relevant context or rationale for the change, with a maximum of 100 characters.
+  5. 'breaking': Boolean value (true/false). Specify whether the change introduces a breaking change that may impact the codebase or dependent projects.
+
+  Return ONLY the JSON in the following format, with no additional text:
+
   {
     "type": "",
     "scope": "",
@@ -26,7 +28,7 @@ async function generateCommitSuggestion(
     "breaking": false
   }
 
-  Git changes:
+  Git Diffs:
   ${diffs}`
 
   const [success, response, time] = await model.generateResponse(prompt)
