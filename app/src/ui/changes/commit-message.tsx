@@ -55,6 +55,7 @@ import { RepoRulesetsForBranchLink } from '../repository-rules/repo-rulesets-for
 import { RepoRulesMetadataFailureList } from '../repository-rules/repo-rules-failure-list'
 import { formatCommitMessage } from '../../lib/format-commit-message'
 import { useRepoRulesLogic } from '../../lib/helpers/repo-rules'
+import { generateCommitSuggestion } from '../../lib/commit-suggestion/commit-suggestion'
 
 const addAuthorIcon: OcticonSymbolVariant = {
   w: 18,
@@ -746,9 +747,16 @@ export class CommitMessage extends React.Component<
     this.props.onShowCoAuthoredByChanged(!this.props.showCoAuthoredBy)
   }
 
-  private onSuggestCommitMessage = () => {
-    this.setState({ summary: 'Hello ' })
-    this.setState({ description: 'World' })
+  private onSuggestCommitMessage = async () => {
+    const [success, suggestion] = await generateCommitSuggestion(
+      this.props.repository
+    )
+    if (!success) {
+      return
+    }
+
+    this.setState({ summary: suggestion.message })
+    this.setState({ description: suggestion.body })
 
     if (this.props.onSuggestCommitMessage) {
       this.props.onSuggestCommitMessage(true)

@@ -36,6 +36,87 @@ import { createLogParser } from './git-delimiter-parser'
 import { enableImagePreviewsForDDSFiles } from '../feature-flag'
 
 /**
+ * Get staged changes in the repository
+ */
+export async function getStagedChanges(
+  repository: Repository
+): Promise<string> {
+  const result = await git(
+    ['diff', '--cached'],
+    repository.path,
+    'getStagedChanges'
+  )
+  return result.stdout.trim()
+}
+
+/**
+ * Get unstaged changes in the repository
+ */
+export async function getUnstagedChanges(
+  repository: Repository
+): Promise<string> {
+  const result = await git(['diff'], repository.path, 'getUnstagedChanges')
+  return result.stdout.trim()
+}
+
+/**
+ * Get list of untracked files
+ */
+export async function getUntrackedFiles(
+  repository: Repository
+): Promise<string[]> {
+  const result = await git(
+    ['ls-files', '--others', '--exclude-standard'],
+    repository.path,
+    'getUntrackedFiles'
+  )
+  return result.stdout.trim().split('\n').filter(Boolean)
+}
+
+/**
+ * Get content of an untracked file
+ */
+export async function getUntrackedFileContent(
+  repository: Repository,
+  filePath: string
+): Promise<string> {
+  try {
+    const content = await readFile(Path.join(repository.path, filePath), 'utf8')
+    return `=== ${filePath} ===\n${content}`
+  } catch (e) {
+    return `=== ${filePath} ===\nError reading file: ${e}`
+  }
+}
+
+/**
+ * Get current branch name
+ */
+export async function getCurrentBranch(
+  repository: Repository
+): Promise<string> {
+  const result = await git(
+    ['rev-parse', '--abbrev-ref', 'HEAD'],
+    repository.path,
+    'getCurrentBranch'
+  )
+  return result.stdout.trim()
+}
+
+/**
+ * Get last commit message
+ */
+export async function getLastCommitMessage(
+  repository: Repository
+): Promise<string> {
+  const result = await git(
+    ['log', '-1', '--pretty=%B'],
+    repository.path,
+    'getLastCommitMessage'
+  )
+  return result.stdout.trim()
+}
+
+/**
  * V8 has a limit on the size of string it can create (~256MB), and unless we want to
  * trigger an unhandled exception we need to do the encoding conversion by hand.
  *
