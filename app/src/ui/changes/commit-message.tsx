@@ -175,6 +175,8 @@ interface ICommitMessageProps {
    */
   readonly onRefreshAuthor: () => void
 
+  readonly onSuggestCommitMessage?: (generateSuggestion: boolean) => void
+
   readonly onShowPopup: (popup: Popup) => void
   readonly onShowFoldout: (foldout: Foldout) => void
   readonly onCommitSpellcheckEnabledChanged: (enabled: boolean) => void
@@ -744,6 +746,15 @@ export class CommitMessage extends React.Component<
     this.props.onShowCoAuthoredByChanged(!this.props.showCoAuthoredBy)
   }
 
+  private onSuggestCommitMessage = () => {
+    this.setState({ summary: 'Hello ' })
+    this.setState({ description: 'World' })
+
+    if (this.props.onSuggestCommitMessage) {
+      this.props.onSuggestCommitMessage(true)
+    }
+  }
+
   private get toggleCoAuthorsText(): string {
     return this.props.showCoAuthoredBy
       ? __DARWIN__
@@ -816,6 +827,13 @@ export class CommitMessage extends React.Component<
     this.onToggleCoAuthors()
   }
 
+  private onSuggestCommitMessageButtonClick = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault()
+    this.onSuggestCommitMessage()
+  }
+
   private renderCoAuthorToggleButton() {
     if (this.props.repository.gitHubRepository === null) {
       return null
@@ -842,7 +860,7 @@ export class CommitMessage extends React.Component<
     return (
       <Button
         className="suggest-commit-message-button"
-        onClick={this.onCoAuthorToggleButtonClick}
+        onClick={this.onSuggestCommitMessageButtonClick}
         ariaLabel={this.toggleSuggestCommitMessageText}
         tooltip={this.toggleSuggestCommitMessageText}
         disabled={this.props.isCommitting === true}
