@@ -194,6 +194,14 @@
       }
     }
 
+    .suggest-commit-message-button {
+      background: transparent;
+      border: none;
+      border-radius: 0px;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
     .co-authors-toggle {
       // button reset styles
       border: none;

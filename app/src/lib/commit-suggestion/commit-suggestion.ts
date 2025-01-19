@@ -15,7 +15,7 @@ async function generateCommitSuggestion(
   1. 'type': Identify the type of change. It must be one of the following: [feat, fix, docs, style, refactor, test, chore].
   2. 'scope': (Optional) If applicable, specify the component, module, or area of the code that was affected. If there's no clear scope, leave this field out.
   3. 'message': Provide a clear and concise summary of the change, with a maximum of 50 characters. Ensure it captures the essence of the change.
-  4. 'body': Provide a detailed explanation of what the change entails and why it was necessary. Include any relevant context or rationale for the change, with a maximum of 100 characters.
+  4. 'body': Provide a detailed explanation of what the change entails and why it was necessary. Include any relevant context or rationale for the change.
   5. 'breaking': Boolean value (true/false). Specify whether the change introduces a breaking change that may impact the codebase or dependent projects.
 
   Return ONLY the JSON in the following format, with no additional text:
@@ -29,7 +29,10 @@ async function generateCommitSuggestion(
   }
 
   Git Diffs:
-  ${diffs}`
+  \`\`\`
+  ${diffs}
+  \`\`\`
+  `
 
   const [success, response, time] = await model.generateResponse(prompt)
   if (success) {

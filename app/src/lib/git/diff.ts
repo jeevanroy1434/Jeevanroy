@@ -55,7 +55,11 @@ export async function getStagedChanges(
 export async function getUnstagedChanges(
   repository: Repository
 ): Promise<string> {
-  const result = await git(['diff'], repository.path, 'getUnstagedChanges')
+  const result = await git(
+    ['diff', '--ignore-submodules'],
+    repository.path,
+    'getUnstagedChanges'
+  )
   return result.stdout.trim()
 }
 
