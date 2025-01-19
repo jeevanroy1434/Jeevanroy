@@ -79,6 +79,19 @@ const suggestCommitMessageIcon: OcticonSymbolVariant = {
   ],
 }
 
+// const loadingCycle: ReadonlyArray<string> = [
+//   '⠋',
+//   '⠙',
+//   '⠹',
+//   '⠸',
+//   '⠼',
+//   '⠴',
+//   '⠦',
+//   '⠧',
+//   '⠇',
+//   '⠏',
+// ]
+
 interface ICreateCommitOptions {
   warnUnknownAuthors: boolean
   warnFilesNotVisible: boolean

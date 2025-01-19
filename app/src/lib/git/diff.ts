@@ -109,16 +109,16 @@ export async function getCurrentBranch(
 /**
  * Get last commit message
  */
-export async function getLastCommitMessage(
-  repository: Repository
-): Promise<string> {
-  const result = await git(
-    ['log', '-1', '--pretty=%B'],
-    repository.path,
-    'getLastCommitMessage'
-  )
-  return result.stdout.trim()
-}
+// export async function getLastCommitMessage(
+//   repository: Repository
+// ): Promise<string> {
+//   const result = await git(
+//     ['log', '-1', '--pretty=%B'],
+//     repository.path,
+//     'getLastCommitMessage'
+//   )
+//   return result.stdout.trim()
+// }
 
 /**
  * V8 has a limit on the size of string it can create (~256MB), and unless we want to

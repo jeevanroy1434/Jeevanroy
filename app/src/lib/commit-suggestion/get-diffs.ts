@@ -4,7 +4,6 @@ import {
   getUnstagedChanges,
   getUntrackedFiles,
   getUntrackedFileContent,
-  getLastCommitMessage,
 } from '../git'
 
 async function getDiffs(repository: Repository): Promise<string> {
@@ -12,7 +11,6 @@ async function getDiffs(repository: Repository): Promise<string> {
 
   const stagedDiff = await getStagedChanges(repository)
   const unstagedDiff = await getUnstagedChanges(repository)
-  const lastCommit = await getLastCommitMessage(repository)
 
   const untrackedFiles = await getUntrackedFiles(repository)
   const untrackedContent: string[] = []
@@ -20,9 +18,6 @@ async function getDiffs(repository: Repository): Promise<string> {
     untrackedContent.push(await getUntrackedFileContent(repository, file))
   }
 
-  if (lastCommit) {
-    allChanges.push(`Last commit message:\n${lastCommit}`)
-  }
   if (stagedDiff) {
     allChanges.push(`=== Staged changes ===\n${stagedDiff}`)
   }
