@@ -18,8 +18,8 @@ async function generateCommitSuggestion(
     4. 'body': Provide a detailed explanation of what the change entails and why it was necessary with a maximum of 100 characters. Include any relevant context or rationale for the change. Do not include any additional or extraneous information.
     5. 'breaking': Boolean value (true/false). Specify whether the change introduces a breaking change that may impact the codebase or dependent projects. This must be accurate and strictly follow the Git diff content.
 
-  Return ONLY the JSON in the following format, with no additional text:
-
+  Return ONLY the JSON in the following format, with no additional text like this:
+  \`\`\`json
   {
       "type": "",
       "scope": "",
@@ -27,6 +27,7 @@ async function generateCommitSuggestion(
       "body": "",
       "breaking": false
   }
+  \`\`\`
 
   Git Diffs:
   \`\`\`

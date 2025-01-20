@@ -9,13 +9,26 @@ import {
 async function getDiffs(repository: Repository): Promise<string> {
   const allChanges: string[] = []
 
+  const ignoredFileTypes = [
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.svg',
+    '.ico',
+    '.lock',
+  ]
+
   const stagedDiff = await getStagedChanges(repository)
   const unstagedDiff = await getUnstagedChanges(repository)
 
   const untrackedFiles = await getUntrackedFiles(repository)
   const untrackedContent: string[] = []
   for (const file of untrackedFiles) {
-    untrackedContent.push(await getUntrackedFileContent(repository, file))
+    const fileExt = file.toLowerCase().substring(file.lastIndexOf('.'))
+    if (!ignoredFileTypes.includes(fileExt)) {
+      untrackedContent.push(await getUntrackedFileContent(repository, file))
+    }
   }
 
   if (stagedDiff) {
