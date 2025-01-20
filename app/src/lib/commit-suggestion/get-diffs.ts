@@ -8,6 +8,7 @@ import {
 
 async function getDiffs(repository: Repository): Promise<string> {
   const allChanges: string[] = []
+  const MAX_FILE_SIZE = 1024 * 1024 // 1MB limit
 
   const ignoredFileTypes = [
     '.png',
@@ -17,6 +18,17 @@ async function getDiffs(repository: Repository): Promise<string> {
     '.svg',
     '.ico',
     '.lock',
+    '.pdf',
+    '.zip',
+    '.bin',
+    '.tar',
+    '.gz',
+    '.7z',
+    '.mp3',
+    '.mp4',
+    '.avi',
+    '.mov',
+    '.ttf',
   ]
 
   const stagedDiff = await getStagedChanges(repository)
@@ -26,8 +38,9 @@ async function getDiffs(repository: Repository): Promise<string> {
   const untrackedContent: string[] = []
   for (const file of untrackedFiles) {
     const fileExt = file.toLowerCase().substring(file.lastIndexOf('.'))
-    if (!ignoredFileTypes.includes(fileExt)) {
-      untrackedContent.push(await getUntrackedFileContent(repository, file))
+    const content = await getUntrackedFileContent(repository, file)
+    if (!ignoredFileTypes.includes(fileExt) && content.length < MAX_FILE_SIZE) {
+      untrackedContent.push(content)
     }
   }
 
