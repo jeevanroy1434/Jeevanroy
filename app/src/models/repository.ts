@@ -10,7 +10,6 @@ import { assertNever, fatalError } from '../lib/fatal-error'
 import { createEqualityHash } from './equality-hash'
 import { getRemotes } from '../lib/git'
 import { findDefaultRemote } from '../lib/stores/helpers/find-default-remote'
-import fs from 'node:fs'
 
 function getBaseName(path: string): string {
   const baseName = Path.basename(path)
@@ -80,8 +79,6 @@ export class Repository {
       this.workflowPreferences.forkContributionTarget,
       this.isTutorialRepository
     )
-
-    this.fetchUrl()
   }
 
   public get path(): string {
@@ -89,19 +86,16 @@ export class Repository {
   }
 
   public get url(): string | null {
+    // Resolve the default remote URL if not yet done.
+    if (this._url === null) {
+      this.fetchUrl()
+    }
+
     return this._url
   }
 
   private fetchUrl(): void {
-    this._url = null
-
-    // cannot load remote from non-exisiting repository folder
-    // this is mostly needed for testing
-    // eslint-disable-next-line no-sync
-    if (!fs.existsSync(this.path)) {
-      return
-    }
-
+    // Get the URL of the default remote, if it exists.
     getRemotes(this).then(remotes => {
       const defaultRemote = findDefaultRemote(remotes)
       if (defaultRemote) {
@@ -175,7 +169,7 @@ export function isRepositoryWithForkedGitHubRepository(
  * This function does not check the validity of the URL.
  */
 export function hasDefaultRemoteUrl(repository: Repository): boolean {
-  return repository.url !== null
+  return (getGitHubHtmlUrl(repository) ?? getNonGitHubUrl(repository)) !== null
 }
 
 /**
@@ -214,6 +208,22 @@ export function getGitHubHtmlUrl(repository: Repository): string | null {
   }
 
   return getNonForkGitHubRepository(repository).htmlURL
+}
+
+/**
+ * Get the html URL for a non-GitHub repository, if it has one.
+ * Will return the origin repository's URL if it has one and the URL is trusted.
+ * Otherwise, returns null.
+ */
+export function getNonGitHubUrl(repository: Repository): string | null {
+  // Usually, this method will not be called for GitHub repositories, but better be safe than sorry.
+  if (isRepositoryWithGitHubRepository(repository)) {
+    return null
+  }
+
+  // TODO: Check whether we can trust the URL.
+
+  return repository.url
 }
 
 /**

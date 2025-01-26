@@ -11,6 +11,7 @@ import { updateMenuState as ipcUpdateMenuState } from '../ui/main-process-proxy'
 import { AppMenu, MenuItem } from '../models/app-menu'
 import { hasConflictedFiles } from './status'
 import { findContributionTargetDefaultBranch } from './branch'
+import { hasDefaultRemoteUrl } from '../models/repository'
 
 export interface IMenuItemState {
   readonly enabled?: boolean
@@ -154,7 +155,10 @@ function getRepositoryMenuBuilder(state: IAppState): MenuStateBuilder {
   const isHostedOnGitHub = selectedState
     ? isRepositoryHostedOnGitHub(selectedState.repository)
     : false
-  const hasDefaultRemoteUrl = selectedState?.repository.url !== null
+  const hasRemoteUrl =
+    selectedState && selectedState.repository instanceof Repository
+      ? hasDefaultRemoteUrl(selectedState.repository)
+      : false
 
   let repositorySelected = false
   let onNonDefaultBranch = false
@@ -286,7 +290,7 @@ function getRepositoryMenuBuilder(state: IAppState): MenuStateBuilder {
 
     menuStateBuilder.setEnabled(
       'view-repository-in-browser',
-      isHostedOnGitHub || hasDefaultRemoteUrl
+      isHostedOnGitHub || hasRemoteUrl
     )
     menuStateBuilder.setEnabled(
       'create-issue-in-repository-on-github',

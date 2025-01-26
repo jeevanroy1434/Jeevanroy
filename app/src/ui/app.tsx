@@ -31,6 +31,7 @@ import {
   Repository,
   getGitHubHtmlUrl,
   getNonForkGitHubRepository,
+  getNonGitHubUrl,
   isRepositoryWithGitHubRepository,
 } from '../models/repository'
 import { Branch } from '../models/branch'
@@ -2723,7 +2724,7 @@ export class App extends React.Component<IAppProps, IAppState> {
       return
     }
 
-    const url = getGitHubHtmlUrl(repository) ?? repository.url
+    const url = getGitHubHtmlUrl(repository) ?? getNonGitHubUrl(repository)
 
     if (url) {
       this.props.dispatcher.openInBrowser(url)
