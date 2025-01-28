@@ -6,7 +6,6 @@ import { IRemote } from '../../models/remote'
 import { envForRemoteOperation } from './environment'
 import { getSymbolicRef } from './refs'
 import memoizeOne from 'memoize-one'
-
 /**
  * List the remotes, sorted alphabetically by `name`, for a repository.
  */
@@ -35,7 +34,7 @@ export async function getRemotesFromPath(
     ([, name, url]) => ({ name, url })
   )
 }
-const memoizedGetRemotesFromPath = memoizeOne(getRemotesFromPath)
+export const memoizedGetRemotesFromPath = memoizeOne(getRemotesFromPath)
 
 /** Add a new remote with the given URL. */
 export async function addRemote(
