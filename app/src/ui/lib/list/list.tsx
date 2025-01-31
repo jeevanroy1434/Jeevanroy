@@ -59,6 +59,14 @@ export type KeyboardInsertionData = {
   readonly itemIndices: ReadonlyArray<number>
 } & DragData
 
+export class MoveListSelectionEvent extends Event {
+  public direction: SelectionDirection
+  public constructor(direction: SelectionDirection) {
+    super('move-list-selection')
+    this.direction = direction
+  }
+}
+
 interface IListProps {
   /**
    * Mandatory callback for rendering the contents of a particular
@@ -427,6 +435,14 @@ export class List extends React.Component<IListProps, IListState> {
 
   public constructor(props: IListProps) {
     super(props)
+
+    document.addEventListener('move-list-selection', event => {
+      this.moveSelection((event as MoveListSelectionEvent).direction, {
+        kind: 'keyboard',
+        // This is a dummy event, it's not used for anything
+        event: null as unknown as React.KeyboardEvent,
+      })
+    })
 
     this.state = { keyboardInsertionIndexPath: null }
 

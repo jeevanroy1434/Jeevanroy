@@ -72,6 +72,7 @@ import { findDOMNode } from 'react-dom'
 import escapeRegExp from 'lodash/escapeRegExp'
 import ReactDOM from 'react-dom'
 import { AriaLiveContainer } from '../accessibility/aria-live-container'
+import { MoveListSelectionEvent } from '../lib/list'
 
 const DefaultRowHeight = 20
 
@@ -251,6 +252,8 @@ export class SideBySideDiff extends React.Component<
    */
   private ariaLiveChangeSignal: boolean = false
 
+  private element: HTMLDivElement | null = null
+
   /**
    * Caches a group of selectable row's information that does not change on row
    * rerender like line numbers using the row's hunkStartLline as the key.
@@ -286,6 +289,18 @@ export class SideBySideDiff extends React.Component<
     document.addEventListener('copy', this.onCutOrCopy)
 
     document.addEventListener('selectionchange', this.onDocumentSelectionChange)
+
+    this.element?.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (
+        event.altKey &&
+        (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+      ) {
+        event.preventDefault()
+        document.dispatchEvent(
+          new MoveListSelectionEvent(event.key === 'ArrowDown' ? 'down' : 'up')
+        )
+      }
+    })
 
     this.addContextMenuListenerToDiff()
   }
@@ -604,6 +619,7 @@ export class SideBySideDiff extends React.Component<
     return (
       // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div
+        ref={elem => (this.element = elem)}
         className={containerClassName}
         onMouseDown={this.onMouseDown}
         onKeyDown={this.onKeyDown}
