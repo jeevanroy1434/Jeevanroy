@@ -10,6 +10,7 @@ import { assertNever, fatalError } from '../lib/fatal-error'
 import { createEqualityHash } from './equality-hash'
 import { getRemotes } from '../lib/git'
 import { findDefaultRemote } from '../lib/stores/helpers/find-default-remote'
+import { isTrustedRemoteHost } from '../lib/api'
 
 function getBaseName(path: string): string {
   const baseName = Path.basename(path)
@@ -221,9 +222,12 @@ export function getNonGitHubUrl(repository: Repository): string | null {
     return null
   }
 
-  // TODO: Check whether we can trust the URL.
+  // Only return URLs that belong to trusted hosts.
+  if (repository.url && isTrustedRemoteHost(repository.url)) {
+    return repository.url
+  }
 
-  return repository.url
+  return null
 }
 
 /**
