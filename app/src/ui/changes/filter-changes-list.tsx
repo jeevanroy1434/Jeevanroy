@@ -64,6 +64,8 @@ import {
   FilterOption,
   FilterSelectionTextBox,
 } from '../lib/filter-selection-text-box'
+import { TooltippedContent } from '../lib/tooltipped-content'
+import { TooltipDirection } from '../lib/tooltip'
 
 interface IChangesListItem extends IFilterListItem {
   readonly id: string
@@ -1154,7 +1156,7 @@ export class FilterChangesList extends React.Component<
     const { files } = workingDirectory
 
     const visibleFiles = this.state.filteredItems.size
-    const filesDescription = `${visibleFiles}/${files.length}`
+    const filesDescription = `${visibleFiles} of ${files.length}`
 
     const includeAllValue = this.getCheckAllValue(
       workingDirectory,
@@ -1171,15 +1173,22 @@ export class FilterChangesList extends React.Component<
         onContextMenu={this.onContextMenu}
         ref={this.headerRef}
       >
-        <Checkbox
-          ref={this.includeAllCheckBoxRef}
-          value={includeAllValue}
-          onChange={this.onIncludeAllChanged}
-          disabled={disableAllCheckbox}
-          ariaLabelledBy="changes-list-check-all-label"
-        />
-
-        <label id="changes-list-check-all-label"> {filesDescription}</label>
+        <TooltippedContent
+          tooltip={filesDescription}
+          direction={TooltipDirection.NORTH}
+          ancestorFocused={
+            this.includeAllCheckBoxRef.current?.isFocused() === true
+          }
+          openOnFocus={true}
+        >
+          <Checkbox
+            ref={this.includeAllCheckBoxRef}
+            value={includeAllValue}
+            onChange={this.onIncludeAllChanged}
+            disabled={disableAllCheckbox}
+            ariaLabel={filesDescription}
+          />
+        </TooltippedContent>
 
         <FilterSelectionTextBox
           ref={this.onTextBoxRef}
