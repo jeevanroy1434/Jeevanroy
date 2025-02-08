@@ -8,6 +8,9 @@ interface IAccessibilityPreferencesProps {
 
   readonly showDiffCheckMarks: boolean
   readonly onShowDiffCheckMarksChanged: (value: boolean) => void
+
+  readonly useConventionalCommits: boolean
+  readonly onUseConventionalCommits: (value: boolean) => void
 }
 
 export class Accessibility extends React.Component<
@@ -58,6 +61,23 @@ export class Accessibility extends React.Component<
             numbers and groups of line numbers in the diff when committing. When
             disabled, the line number controls will be less prominent.
           </p>
+
+          <Checkbox
+            label="Use conventional commits"
+            value={
+              this.props.useConventionalCommits
+                ? CheckboxValue.On
+                : CheckboxValue.Off
+            }
+            onChange={this.onUseConventionalCommitsChanged}
+            ariaDescribedBy="conventional-commits-description"
+          />
+          <p
+            id="conventional-commits-description"
+            className="git-settings-description"
+          >
+            When enabled,
+          </p>
         </div>
       </DialogContent>
     )
@@ -86,5 +106,11 @@ export class Accessibility extends React.Component<
     event: React.FormEvent<HTMLInputElement>
   ) => {
     this.props.onShowDiffCheckMarksChanged(event.currentTarget.checked)
+  }
+
+  private onUseConventionalCommitsChanged = (
+    event: React.FormEvent<HTMLInputElement>
+  ) => {
+    this.props.onUseConventionalCommits(event.currentTarget.checked)
   }
 }

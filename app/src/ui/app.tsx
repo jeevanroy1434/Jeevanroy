@@ -1565,6 +1565,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
             onEditGlobalGitConfig={this.editGlobalGitConfig}
             underlineLinks={this.state.underlineLinks}
+            useConventionalCommits={this.state.useConventionalCommits}
             showDiffCheckMarks={this.state.showDiffCheckMarks}
             canFilterChanges={this.state.canFilterChanges}
           />

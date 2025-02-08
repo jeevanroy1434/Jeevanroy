@@ -81,6 +81,7 @@ interface IPreferencesProps {
   readonly onEditGlobalGitConfig: () => void
   readonly underlineLinks: boolean
   readonly showDiffCheckMarks: boolean
+  readonly useConventionalCommits: boolean
   readonly canFilterChanges: boolean
 }
 
@@ -132,6 +133,8 @@ interface IPreferencesState {
   readonly isLoadingGitConfig: boolean
 
   readonly underlineLinks: boolean
+
+  readonly useConventionalCommits: boolean
 
   readonly showDiffCheckMarks: boolean
 
@@ -192,6 +195,7 @@ export class Preferences extends React.Component<
       initiallySelectedTabSize: this.props.selectedTabSize,
       isLoadingGitConfig: true,
       underlineLinks: this.props.underlineLinks,
+      useConventionalCommits: this.props.useConventionalCommits,
       showDiffCheckMarks: this.props.showDiffCheckMarks,
       canFilterChanges: this.props.canFilterChanges,
     }
@@ -540,8 +544,10 @@ export class Preferences extends React.Component<
           <Accessibility
             underlineLinks={this.state.underlineLinks}
             showDiffCheckMarks={this.state.showDiffCheckMarks}
+            useConventionalCommits={this.state.useConventionalCommits}
             onShowDiffCheckMarksChanged={this.onShowDiffCheckMarksChanged}
             onUnderlineLinksChanged={this.onUnderlineLinksChanged}
+            onUseConventionalCommits={this.onUseConventionalCommits}
           />
         )
         break
@@ -685,6 +691,10 @@ export class Preferences extends React.Component<
 
   private onUnderlineLinksChanged = (underlineLinks: boolean) => {
     this.setState({ underlineLinks })
+  }
+
+  private onUseConventionalCommits = (useConventionalCommits: boolean) => {
+    this.setState({ useConventionalCommits })
   }
 
   private onShowDiffCheckMarksChanged = (showDiffCheckMarks: boolean) => {
@@ -837,6 +847,8 @@ export class Preferences extends React.Component<
     dispatcher.setUnderlineLinksSetting(this.state.underlineLinks)
 
     dispatcher.setDiffCheckMarksSetting(this.state.showDiffCheckMarks)
+
+    dispatcher.setUseConventionalCommits(this.state.useConventionalCommits)
 
     dispatcher.setCanFilterChanges(this.state.canFilterChanges)
 

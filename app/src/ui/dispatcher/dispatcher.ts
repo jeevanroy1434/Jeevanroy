@@ -3962,6 +3962,10 @@ export class Dispatcher {
     return this.appStore._updateUnderlineLinks(underlineLinks)
   }
 
+  public setUseConventionalCommits(useConventionalCommits: boolean) {
+    return this.appStore._setUseConventionalCommits(useConventionalCommits)
+  }
+
   public setDiffCheckMarksSetting(diffCheckMarks: boolean) {
     return this.appStore._updateShowDiffCheckMarks(diffCheckMarks)
   }

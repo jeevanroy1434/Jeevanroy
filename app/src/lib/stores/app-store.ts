@@ -443,6 +443,9 @@ const customShellKey = 'custom-shell'
 export const underlineLinksKey = 'underline-links'
 export const underlineLinksDefault = true
 
+export const useConventionalCommitsKey = 'use-conventional-commits'
+export const useConventionalCommitsDefault = false
+
 export const showDiffCheckMarksDefault = true
 export const showDiffCheckMarksKey = 'diff-check-marks-visible'
 
@@ -598,6 +601,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private cachedRepoRulesets = new Map<number, IAPIRepoRuleset>()
 
   private underlineLinks: boolean = underlineLinksDefault
+
+  private useConventionalCommits: boolean = useConventionalCommitsDefault
 
   private canFilterChanges: boolean = canFilterChangesDefault
 
@@ -1087,6 +1092,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
       resizablePaneActive: this.resizablePaneActive,
       cachedRepoRulesets: this.cachedRepoRulesets,
       underlineLinks: this.underlineLinks,
+      useConventionalCommits: this.useConventionalCommits,
       showDiffCheckMarks: this.showDiffCheckMarks,
       canFilterChanges: this.canFilterChanges,
     }
@@ -2309,6 +2315,11 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     // Always false if the feature flag is disabled.
     this.underlineLinks = getBoolean(underlineLinksKey, underlineLinksDefault)
+
+    this.useConventionalCommits = getBoolean(
+      useConventionalCommitsKey,
+      useConventionalCommitsDefault
+    )
 
     this.showDiffCheckMarks = getBoolean(
       showDiffCheckMarksKey,
@@ -8143,6 +8154,14 @@ export class AppStore extends TypedBaseStore<IAppState> {
     if (underlineLinks !== this.underlineLinks) {
       this.underlineLinks = underlineLinks
       setBoolean(underlineLinksKey, underlineLinks)
+      this.emitUpdate()
+    }
+  }
+
+  public _setUseConventionalCommits(useConventionalCommits: boolean) {
+    if (useConventionalCommits !== this.useConventionalCommits) {
+      this.useConventionalCommits = useConventionalCommits
+      setBoolean(useConventionalCommitsKey, useConventionalCommits)
       this.emitUpdate()
     }
   }

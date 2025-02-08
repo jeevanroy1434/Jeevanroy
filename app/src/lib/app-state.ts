@@ -372,6 +372,8 @@ export interface IAppState {
 
   readonly underlineLinks: boolean
 
+  readonly useConventionalCommits: boolean
+
   readonly canFilterChanges: boolean
 }
 

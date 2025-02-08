@@ -1,5 +1,11 @@
 import * as React from 'react'
 import { IAutocompletionProvider } from './index'
+import {
+  useConventionalCommitsKey,
+  useConventionalCommitsDefault,
+} from '../../lib/stores'
+
+import { getBoolean } from '../../lib/local-storage'
 
 export interface ICommitType {
   text: string
@@ -49,6 +55,11 @@ export class ConventionalCommitsProvider
       wholeText?.includes(' ') ||
       this.suggestions.some(item => wholeText?.includes(item.text))
     ) {
+      return []
+    }
+
+    // return no autocompletion if useConventionalCommits is turned off
+    if (!getBoolean(useConventionalCommitsKey, useConventionalCommitsDefault)) {
       return []
     }
 
