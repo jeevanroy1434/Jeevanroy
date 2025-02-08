@@ -76,7 +76,9 @@ export class Accessibility extends React.Component<
             id="conventional-commits-description"
             className="git-settings-description"
           >
-            When enabled,
+            When enabled, it will provide suggestions to follow the conventional
+            commit format when writing commit messages. It helps validate your
+            commit messages according to standardized formatting rules.
           </p>
         </div>
       </DialogContent>
