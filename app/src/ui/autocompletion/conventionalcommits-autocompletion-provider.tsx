@@ -1,18 +1,18 @@
 import * as React from 'react'
 import { IAutocompletionProvider } from './index'
 
-interface ISuggestionItem {
+export interface ICommitType {
   text: string
   description?: string
 }
 
 /** The autocompletion provider for predefined suggestions. */
 export class ConventionalCommitsProvider
-  implements IAutocompletionProvider<ISuggestionItem>
+  implements IAutocompletionProvider<ICommitType>
 {
   public readonly kind = 'conventional-commits'
 
-  private readonly suggestions: ISuggestionItem[] = [
+  private readonly suggestions: ICommitType[] = [
     { text: 'feat', description: 'A new feature' },
     { text: 'fix', description: 'A bug fix' },
     { text: 'docs', description: 'Documentation only changes' },
@@ -43,7 +43,7 @@ export class ConventionalCommitsProvider
   public async getAutocompletionItems(
     text: string,
     wholeText?: string
-  ): Promise<ReadonlyArray<ISuggestionItem>> {
+  ): Promise<ReadonlyArray<ICommitType>> {
     // return no autocompletion if its not the beginning of text
     if (
       wholeText?.includes(' ') ||
@@ -59,11 +59,11 @@ export class ConventionalCommitsProvider
     return items
   }
 
-  public getItemAriaLabel(item: ISuggestionItem): string {
+  public getItemAriaLabel(item: ICommitType): string {
     return `${item.text}${item.description ? ` - ${item.description}` : ''}`
   }
 
-  public renderItem(item: ISuggestionItem): JSX.Element {
+  public renderItem(item: ICommitType): JSX.Element {
     return (
       <div className="conventional-commits" key={item.text}>
         <span className="text">{item.text}</span>
@@ -74,7 +74,7 @@ export class ConventionalCommitsProvider
     )
   }
 
-  public getCompletionText(item: ISuggestionItem): string {
-    return item.text
+  public getCompletionText(item: ICommitType): string {
+    return `${item.text}:`
   }
 }
