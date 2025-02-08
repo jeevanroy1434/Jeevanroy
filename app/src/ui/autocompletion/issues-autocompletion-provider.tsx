@@ -41,7 +41,8 @@ export class IssuesAutocompletionProvider
   }
 
   public getAutocompletionItems(
-    text: string
+    text: string,
+    wholeText?: string
   ): Promise<ReadonlyArray<IIssueHit>> {
     this.updateIssuesScheduler.queue(() => {
       this.dispatcher.refreshIssues(this.repository)

@@ -53,6 +53,7 @@ export class EmojiAutocompletionProvider
 
   public async getAutocompletionItems(
     text: string,
+    wholeText?: string,
     maxHits = DefaultMaxHits
   ): Promise<ReadonlyArray<IEmojiHit>> {
     // This is the happy path to avoid sorting and matching

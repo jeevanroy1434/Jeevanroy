@@ -109,7 +109,8 @@ export class UserAutocompletionProvider
   }
 
   public async getAutocompletionItems(
-    text: string
+    text: string,
+    wholeText?: string
   ): Promise<ReadonlyArray<UserHit>> {
     return this.getUserAutocompletionItems(text, false)
   }

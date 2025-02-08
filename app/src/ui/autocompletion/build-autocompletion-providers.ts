@@ -9,6 +9,7 @@ import {
   IAutocompletionProvider,
   IssuesAutocompletionProvider,
   UserAutocompletionProvider,
+  ConventionalCommitsProvider,
 } from '.'
 import { Dispatcher } from '../dispatcher'
 import { GitHubUserStore, IssuesStore } from '../../lib/stores'
@@ -55,6 +56,8 @@ export function buildAutocompletionProviders(
         account
       )
     )
+
+    autocompletionProviders.push(new ConventionalCommitsProvider())
   }
 
   return autocompletionProviders

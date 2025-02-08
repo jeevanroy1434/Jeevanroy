@@ -106,6 +106,7 @@ interface IAutocompletionState<T> {
   readonly selectedItem: T | null
   readonly selectedRowId: string | undefined
   readonly itemListRowIdPrefix: string
+  readonly wholeText: string
 }
 
 /**
@@ -716,12 +717,13 @@ export abstract class AutocompletingTextInput<
       }
 
       let result: RegExpExecArray | null = null
+      const wholeText = this.state.autocompletionState?.wholeText ?? ''
       while ((result = regex.exec(lowercaseStr))) {
         const index = regex.lastIndex
         const text = result[1] || ''
         if (index === caretPosition || this.props.alwaysAutocomplete) {
           const range = { start: index - text.length, length: text.length }
-          let items = await provider.getAutocompletionItems(text)
+          let items = await provider.getAutocompletionItems(text, wholeText)
 
           if (this.props.autocompleteItemFilter) {
             items = items.filter(this.props.autocompleteItemFilter)
@@ -735,6 +737,7 @@ export abstract class AutocompletingTextInput<
             selectedRowId: undefined,
             rangeText: text,
             itemListRowIdPrefix: this.buildAutocompleteListRowIdPrefix(),
+            wholeText: str,
           }
         }
       }
@@ -787,7 +790,6 @@ export abstract class AutocompletingTextInput<
     if (requestID !== this.autocompletionRequestID) {
       return
     }
-
     this.setState({ autocompletionState })
   }
 }

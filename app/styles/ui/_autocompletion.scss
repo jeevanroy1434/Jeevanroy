@@ -72,6 +72,25 @@
     color: currentColor;
   }
 
+  .conventional-commits {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+
+    .text {
+      @include ellipsis;
+      font-weight: var(--font-weight-semibold);
+      margin-right: var(--spacing-half);
+    }
+
+    .description {
+      @include ellipsis;
+      color: var(--text-secondary-color);
+    }
+  }
+
   .emoji {
     display: flex;
     flex-grow: 1;

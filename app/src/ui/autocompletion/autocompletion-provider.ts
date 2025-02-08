@@ -21,7 +21,7 @@ export interface IAutocompletionProvider<T> {
    * The type of auto completion provided this instance implements. Used
    * for variable width auto completion popups depending on type.
    */
-  kind: 'emoji' | 'user' | 'issue'
+  kind: 'emoji' | 'user' | 'issue' | 'conventional-commits'
 
   /**
    * Get the regex which it used to capture text for the provider. The text
@@ -36,7 +36,10 @@ export interface IAutocompletionProvider<T> {
    * Get the autocompletion results for the given text. The text is whatever was
    * captured in the first group by the regex returned from `getRegExp`.
    */
-  getAutocompletionItems(text: string): Promise<ReadonlyArray<T>>
+  getAutocompletionItems(
+    text: string,
+    wholeText?: string
+  ): Promise<ReadonlyArray<T>>
 
   /**
    * Render the autocompletion item. The item will be one which the provider
