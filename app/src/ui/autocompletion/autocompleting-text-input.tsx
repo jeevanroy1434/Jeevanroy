@@ -277,6 +277,17 @@ export abstract class AutocompletingTextInput<
 
     const className = classNames('autocompletion-popup', state.provider.kind)
 
+    // If there's only one item, automatically select it
+    if (items.length === 1 && !state.selectedItem) {
+      const newAutoCompletionState = {
+        ...state,
+        selectedItem: items[0],
+        selectedRowId: this.getRowId(0),
+      }
+      this.setState({ autocompletionState: newAutoCompletionState })
+      selectedRows[0] = 0
+    }
+
     return (
       <Popover
         anchor={this.invisibleCaretRef.current}
