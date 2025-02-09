@@ -717,22 +717,23 @@ export abstract class AutocompletingTextInput<
     const lowercaseStr = str.toLowerCase()
 
     for (const provider of this.props.autocompletionProviders) {
-      // NB: RegExps are stateful (AAAAAAAAAAAAAAAAAA) so defensively copy the
-      // regex we're given.
       const regex = new RegExp(provider.getRegExp())
+
       if (!regex.global) {
         fatalError(
-          `The regex (${regex}) returned from ${provider} isn't global, but it should be!`
+          `The regex (${regex}) returned from ${provider} isn't global!`
         )
       }
 
       let result: RegExpExecArray | null = null
       while ((result = regex.exec(lowercaseStr))) {
-        const index = regex.lastIndex
+        const matchStart = result.index
+        const matchEnd = regex.lastIndex
         const text = result[1] || ''
-        if (index === caretPosition || this.props.alwaysAutocomplete) {
-          const range = { start: index - text.length, length: text.length }
-          let items = await provider.getAutocompletionItems(text, str)
+
+        if (matchEnd === caretPosition || this.props.alwaysAutocomplete) {
+          const range = { start: matchStart, length: text.length }
+          let items = await provider.getAutocompletionItems(text)
 
           if (this.props.autocompleteItemFilter) {
             items = items.filter(this.props.autocompleteItemFilter)

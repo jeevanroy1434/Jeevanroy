@@ -43,21 +43,12 @@ export class ConventionalCommitsProvider
   public constructor() {}
 
   public getRegExp(): RegExp {
-    return /(?:^|\n| )([a-z\d\\+-][a-z\d_]*)?/g
+    return /^(\w+)$/g
   }
 
   public async getAutocompletionItems(
-    text: string,
-    wholeText?: string
+    text: string
   ): Promise<ReadonlyArray<ICommitType>> {
-    // return no autocompletion if its not the beginning of text
-    if (
-      wholeText?.includes(' ') ||
-      this.suggestions.some(item => wholeText?.includes(item.text))
-    ) {
-      return []
-    }
-
     // return no autocompletion if useConventionalCommits is turned off
     if (!getBoolean(useConventionalCommitsKey, useConventionalCommitsDefault)) {
       return []
