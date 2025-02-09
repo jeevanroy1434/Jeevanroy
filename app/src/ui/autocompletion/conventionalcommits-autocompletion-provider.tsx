@@ -43,7 +43,7 @@ export class ConventionalCommitsProvider
   public constructor() {}
 
   public getRegExp(): RegExp {
-    return /^(\w+)$/g
+    return /^([a-z]+)(?:[:])?$/gi
   }
 
   public async getAutocompletionItems(

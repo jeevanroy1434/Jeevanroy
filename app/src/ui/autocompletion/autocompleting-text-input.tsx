@@ -798,6 +798,7 @@ export abstract class AutocompletingTextInput<
     if (requestID !== this.autocompletionRequestID) {
       return
     }
+
     this.setState({ autocompletionState })
   }
 }
