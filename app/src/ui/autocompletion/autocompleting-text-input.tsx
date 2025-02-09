@@ -721,7 +721,7 @@ export abstract class AutocompletingTextInput<
 
       if (!regex.global) {
         fatalError(
-          `The regex (${regex}) returned from ${provider} isn't global!`
+          `The regex (${regex}) returned from ${provider} isn't global, but it should be!`
         )
       }
 
