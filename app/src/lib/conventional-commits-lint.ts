@@ -37,47 +37,48 @@ export function lintCommitMessage(commitMessage: string): ILintError[] {
 
   // Split into header and subject
   const [header, ...subjectParts] = message.split(/:\s*/)
-  const subject = subjectParts.join(': ')
+  const subject = subjectParts.join(': ').trim()
 
   // Validate header structure
-  const headerRegex = /^([a-zA-Z]+)(?:\(([a-z0-9\-_.]+)\))?(!)?$/
-  const headerMatch = header.match(headerRegex)
+  const headerPattern = /^(\w*)(?:\(([\w$@.\-*/ ]*)\))?(!)?$/
+  const headerMatch = header.match(headerPattern)
 
   if (!headerMatch) {
     errors.push({
       message: 'Invalid format before colon. Expected: <type>(<scope>)?[!]',
     })
-  } else {
-    const [_, type, scope, breaking] = headerMatch
+    return errors
+  }
 
-    // Validate type
-    if (!CONVENTIONAL_TYPES.includes(type.toLowerCase())) {
-      errors.push({
-        message: `Invalid type "${type}". Valid types: ${CONVENTIONAL_TYPES.join(
-          ', '
-        )}`,
-      })
-    }
+  const [_, type, scope, breaking] = headerMatch
 
-    // Validate type casing
-    if (type !== type.toLowerCase()) {
-      errors.push({ message: `Type must be lowercase (found "${type}")` })
-    }
+  // Validate type
+  if (!CONVENTIONAL_TYPES.includes(type.toLowerCase())) {
+    errors.push({
+      message: `Invalid type "${type}". Valid types: ${CONVENTIONAL_TYPES.join(
+        ', '
+      )}`,
+    })
+  }
 
-    // Validate scope format
-    if (scope && !/^[a-z0-9_.-]+$/.test(scope)) {
-      errors.push({
-        message: `Invalid scope format. Use lowercase letters, numbers, and: . _ -`,
-      })
-    }
+  // Validate type casing
+  if (type !== type.toLowerCase()) {
+    errors.push({ message: `Type must be lowercase (found "${type}")` })
+  }
 
-    // Validate breaking change notation
-    if (breaking) {
-      errors.push({
-        message:
-          "Breaking changes should use '!' after scope: feat(scope)!: description",
-      })
-    }
+  // Validate scope format
+  if (scope && !/^[a-z0-9_.-]+$/.test(scope)) {
+    errors.push({
+      message: `Invalid scope format. Use lowercase letters, numbers, and: . _ -`,
+    })
+  }
+
+  // Validate breaking change notation
+  if (message.includes('!:') && !breaking) {
+    errors.push({
+      message:
+        "Breaking changes should use '!' after scope: feat(scope)!: description",
+    })
   }
 
   // Validate subject
