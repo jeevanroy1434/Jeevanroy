@@ -33,6 +33,7 @@ import { IAheadBehind } from '../../models/branch'
 import { Emoji } from '../../lib/emoji'
 import { enableFilteredChangesList } from '../../lib/feature-flag'
 import { FilterChangesList } from './filter-changes-list'
+import { lintCommitMessage } from '../../lib/lint-conventional-commit'
 
 /**
  * The timeout for the animation of the enter/leave animation for Undo.
@@ -180,6 +181,18 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
         files: conflictedFilesSelected,
         repository: this.props.repository,
         context,
+      })
+      return false
+    }
+
+    // Check if commit message follows conventional commit format
+    const errors = lintCommitMessage(context.summary)
+    if (errors.length > 0) {
+      this.props.dispatcher.showPopup({
+        type: PopupType.InvalidConventionalCommit,
+        conventionalCommitValidationErrors: errors,
+        context: context,
+        repository: this.props.repository,
       })
       return false
     }

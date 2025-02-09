@@ -23,6 +23,7 @@ import { GitHubRepository } from './github-repository'
 import { ValidNotificationPullRequestReview } from '../lib/valid-notification-pull-request-review'
 import { UnreachableCommitsTab } from '../ui/history/unreachable-commits-dialog'
 import { IAPIComment } from '../lib/api'
+import { IConventionalCommitLintError } from '../lib/lint-conventional-commit'
 
 export enum PopupType {
   RenameBranch = 'RenameBranch',
@@ -54,6 +55,7 @@ export enum PopupType {
   ReleaseNotes = 'ReleaseNotes',
   DeletePullRequest = 'DeletePullRequest',
   OversizedFiles = 'OversizedFiles',
+  InvalidConventionalCommit = 'InvalidConventionalCommit',
   CommitConflictsWarning = 'CommitConflictsWarning',
   PushNeedsPull = 'PushNeedsPull',
   ConfirmForcePush = 'ConfirmForcePush',
@@ -207,6 +209,12 @@ export type PopupDetail =
   | {
       type: PopupType.OversizedFiles
       oversizedFiles: ReadonlyArray<string>
+      context: ICommitContext
+      repository: Repository
+    }
+  | {
+      type: PopupType.InvalidConventionalCommit
+      conventionalCommitValidationErrors: ReadonlyArray<IConventionalCommitLintError>
       context: ICommitContext
       repository: Repository
     }

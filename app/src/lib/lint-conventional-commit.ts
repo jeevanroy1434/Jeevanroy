@@ -1,4 +1,4 @@
-interface ILintError {
+export interface IConventionalCommitLintError {
   message: string
 }
 
@@ -19,8 +19,10 @@ const CONVENTIONAL_TYPES = [
 
 const MAX_SUBJECT_LENGTH = 100
 
-export function lintCommitMessage(commitMessage: string): ILintError[] {
-  const errors: ILintError[] = []
+export function lintCommitMessage(
+  commitMessage: string
+): IConventionalCommitLintError[] {
+  const errors: IConventionalCommitLintError[] = []
   const message = commitMessage.trim()
 
   // Check empty message

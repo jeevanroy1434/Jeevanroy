@@ -101,6 +101,7 @@ import { ApplicationTheme } from './lib/application-theme'
 import { RepositoryStateCache } from '../lib/stores/repository-state-cache'
 import { PopupType, Popup } from '../models/popup'
 import { OversizedFiles } from './changes/oversized-files-warning'
+import { InvalidConventionalCommitWarning } from './changes/invalid-conventional-commit-warning'
 import { PushNeedsPullWarning } from './push-needs-pull'
 import { getCurrentBranchForcePushState } from '../lib/rebase'
 import { Banner, BannerType } from '../models/banner'
@@ -1855,6 +1856,19 @@ export class App extends React.Component<IAppProps, IAppState> {
             dispatcher={this.props.dispatcher}
             context={popup.context}
             repository={popup.repository}
+          />
+        )
+      case PopupType.InvalidConventionalCommit:
+        return (
+          <InvalidConventionalCommitWarning
+            key="invalid-conventional-commit"
+            onDismissed={onPopupDismissedFn}
+            dispatcher={this.props.dispatcher}
+            context={popup.context}
+            repository={popup.repository}
+            conventionalCommitValidationErrors={
+              popup.conventionalCommitValidationErrors
+            }
           />
         )
       case PopupType.CommitConflictsWarning:
