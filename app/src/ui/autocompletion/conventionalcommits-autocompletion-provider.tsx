@@ -30,14 +30,26 @@ export class ConventionalCommitsProvider
       text: 'refactor',
       description: 'A code change that neither fixes a bug nor adds a feature',
     },
+    { text: 'perf', description: 'A code change that improves performance' },
     {
       text: 'test',
       description: 'Adding missing tests or correcting existing tests',
     },
     {
+      text: 'build',
+      description:
+        'Changes that affect the build system or external dependencies',
+    },
+    {
+      text: 'ci',
+      description: 'Changes to CI configuration files and scripts',
+    },
+    {
       text: 'chore',
       description: 'Changes to the build process or auxiliary tools',
     },
+    { text: 'revert', description: 'Reverts a previous commit' },
+    { text: 'wip', description: 'Work in progress' },
   ]
 
   public constructor() {}
