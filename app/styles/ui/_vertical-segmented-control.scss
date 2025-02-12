@@ -34,6 +34,7 @@ fieldset.vertical-segmented-control {
     border-top: var(--base-border);
     border-bottom: none;
 
+    // The first child could be an optional `legend` element
     &:first-of-type {
       border-top-left-radius: var(--border-radius);
       border-top-right-radius: var(--border-radius);
@@ -86,6 +87,7 @@ fieldset.vertical-segmented-control {
     }
 
     &:focus-visible label {
+      // The first child could be an optional `legend` element
       &:first-of-type {
         border-top-left-radius: var(--outlined-border-radius);
         border-top-right-radius: var(--outlined-border-radius);
