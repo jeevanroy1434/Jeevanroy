@@ -6,6 +6,7 @@ interface ISegmentedItemProps<T> {
    * An id for the item, used to assist in accessibility
    */
   readonly id: string
+  readonly parentId?: string
 
   /**
    * The value of the item among the other choices in the segmented
@@ -32,27 +33,24 @@ interface ISegmentedItemProps<T> {
   readonly isSelected: boolean
 
   /**
-   * A function that's called when a user clicks on the item using
-   * a pointer device.
-   */
-  readonly onClick: (value: T) => void
-
-  /**
    * A function that's called when a user double-clicks on the item
    * using a pointer device.
    */
   readonly onDoubleClick: (value: T) => void
+
+  /**
+   * A function that's called when a user selects the item using a
+   * keyboard.
+   */
+  readonly onSelected: (value: T) => void
 }
 
 export class SegmentedItem<T> extends React.Component<
   ISegmentedItemProps<T>,
   {}
 > {
-  private onClick = () => {
-    this.props.onClick(this.props.value)
-  }
-
   private onDoubleClick = () => {
+    console.log('HOLA onDoubleClick', this.props.value)
     this.props.onDoubleClick(this.props.value)
   }
 
@@ -65,21 +63,30 @@ export class SegmentedItem<T> extends React.Component<
     const className = isSelected ? 'selected' : undefined
 
     return (
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
       <div className={classNames('segmented-item', { selected: isSelected })}>
         <input
           type="radio"
           className={className}
-          onClick={this.onClick}
-          onDoubleClick={this.onDoubleClick}
+          onChange={this.onSelect}
           id={this.props.id}
+          name={this.props.parentId}
           aria-checked={isSelected ? 'true' : 'false'}
         />
-        <label className={className} htmlFor={this.props.id}>
+        <label
+          className={className}
+          htmlFor={this.props.id}
+          onDoubleClick={this.onDoubleClick}
+        >
           <div className="title">{this.props.title}</div>
           {description}
         </label>
       </div>
     )
+  }
+
+  private onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      this.props.onSelected(this.props.value)
+    }
   }
 }

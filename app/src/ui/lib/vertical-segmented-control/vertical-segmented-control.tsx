@@ -125,15 +125,16 @@ export class VerticalSegmentedControl<T extends Key> extends React.Component<
     }
   }
 
-  private onItemClick = (key: T) => {
+  private onItemDoubleClick = (key: T) => {
+    // At this point the onSelectionChanged event should've been called already
+    // with the right key
+    this.submitForm()
+  }
+
+  private onItemSelected = (key: T) => {
     if (key !== this.props.selectedKey) {
       this.props.onSelectionChanged(key)
     }
-  }
-
-  private onItemDoubleClick = (key: T) => {
-    this.onItemClick(key)
-    this.submitForm()
   }
 
   private getListItemId(index: number) {
@@ -144,34 +145,17 @@ export class VerticalSegmentedControl<T extends Key> extends React.Component<
     return (
       <SegmentedItem
         id={this.getListItemId(index)}
+        parentId={this.state.listId}
         key={item.key}
         title={item.title}
         description={item.description}
         isSelected={item.key === this.props.selectedKey}
         value={item.key}
-        onClick={this.onItemClick}
         onDoubleClick={this.onItemDoubleClick}
+        onSelected={this.onItemSelected}
       />
     )
   }
-
-  // private onKeyDown = (event: React.KeyboardEvent<HTMLFieldSetElement>) => {
-  //   const selectedIndex = this.findSelectedIndex(this.props.items)
-
-  //   if (event.key === 'ArrowUp') {
-  //     if (selectedIndex > 0) {
-  //       this.props.onSelectionChanged(this.props.items[selectedIndex - 1].key)
-  //     }
-  //     event.preventDefault()
-  //   } else if (event.key === 'ArrowDown') {
-  //     if (selectedIndex < this.props.items.length - 1) {
-  //       this.props.onSelectionChanged(this.props.items[selectedIndex + 1].key)
-  //     }
-  //     event.preventDefault()
-  //   } else if (event.key === 'Enter') {
-  //     this.submitForm()
-  //   }
-  // }
 
   private onFieldsetRef = (ref: HTMLFieldSetElement | null) => {
     this.formRef = ref ? ref.form : null
