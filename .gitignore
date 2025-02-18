@@ -17,3 +17,6 @@ vendor/windows-argv-parser/build/
 junit*.xml
 *.swp
 tslint-rules/
+.yarn/*
+.cursorrules
+.yarnrc*

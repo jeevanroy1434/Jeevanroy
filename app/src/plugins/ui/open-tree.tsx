@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Octicon } from '../../../../app/src/ui/octicons'
-import * as octicons from '../../../../app/src/ui/octicons/octicons.generated'
-import { Button } from '../../../../app/src/ui/lib/button'
+import { Octicon } from '../../ui/octicons'
+import * as octicons from '../../ui/octicons/octicons.generated'
+import { Button } from '../../ui/lib/button'
 import { OpenTreePopup } from './open-tree-popup'
 import { openTreeService } from '../lib/opentree-service'
-import { Repository } from '../../../../app/src/models/repository'
-import '../../../styles/ui/changes/_open-tree.scss'
+import { Repository } from '../../models/repository'
+import './changes/_open-tree.scss'
 
 interface OpenTreeProps {
   isCommitting: boolean | undefined
