@@ -151,4 +151,4 @@ jobs:
             dist/GitHubDesktopSetup-${{matrix.arch}}.exe
             dist/GitHubDesktopSetup-${{matrix.arch}}.msi
             dist/bundle-size.json
-          if-no-files-found: error
+          if-no-files-found: error[![CI](https://github.com/desktop/desktop/actions/workflows/ci.yml/badge.svg)](https://github.com/desktop/desktop/actions/workflows/ci.yml)
