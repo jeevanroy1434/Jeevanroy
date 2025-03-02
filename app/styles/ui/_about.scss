@@ -57,14 +57,11 @@ dialog#about {
   }
 
   .update-status {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
     text-align: center;
     margin-bottom: var(--spacing);
     .octicon.spin {
       // Make sure the spinner is aligned with the text.
-      align-self: center;
+      vertical-align: middle;
       margin-right: 3px;
     }
   }
