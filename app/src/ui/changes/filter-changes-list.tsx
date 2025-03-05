@@ -60,7 +60,12 @@ import { IFilterListGroup, IFilterListItem } from '../lib/filter-list'
 import { ClickSource } from '../lib/list'
 import memoizeOne from 'memoize-one'
 import { IMatches } from '../../lib/fuzzy-find'
-import { Button } from '../lib/button'
+import {
+  FilterOption,
+  FilterSelectionTextBox,
+} from '../lib/filter-selection-text-box'
+import { TooltippedContent } from '../lib/tooltipped-content'
+import { TooltipDirection } from '../lib/tooltip'
 
 interface IChangesListItem extends IFilterListItem {
   readonly id: string
@@ -246,6 +251,8 @@ export class FilterChangesList extends React.Component<
   IFilterChangesListProps,
   IFilterChangesListState
 > {
+  private filterTextBox: FilterSelectionTextBox | undefined = undefined
+
   private isCommittingFileHiddenByFilter = memoizeOne(
     (
       filterText: string,
@@ -319,6 +326,8 @@ export class FilterChangesList extends React.Component<
 
   private headerRef = createObservableRef<HTMLDivElement>()
   private includeAllCheckBoxRef = React.createRef<Checkbox>()
+  private filterListRef =
+    React.createRef<AugmentedSectionFilterList<IChangesListItem>>()
 
   public constructor(props: IFilterChangesListProps) {
     super(props)
@@ -334,7 +343,7 @@ export class FilterChangesList extends React.Component<
       selectedItems: getSelectedItemsFromProps(props),
       focusedRow: null,
       groups,
-      filterToIncludedCommit: false,
+      filterToIncludedCommit: true,
     }
   }
 
@@ -1132,13 +1141,22 @@ export class FilterChangesList extends React.Component<
     this.setState({ filterText: '', filterToIncludedCommit: true })
   }
 
-  private renderFilterResultsHeader = () => {
+  private onTextBoxRef = (component: FilterSelectionTextBox | null) => {
+    this.filterTextBox = component ?? undefined
+  }
+
+  private onFilterKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (this.filterListRef.current) {
+      this.filterListRef.current.onKeyDown(event)
+    }
+  }
+
+  private renderFilterRow = () => {
     const { workingDirectory, rebaseConflictState, isCommitting } = this.props
     const { files } = workingDirectory
 
     const visibleFiles = this.state.filteredItems.size
-    const filesPlural = files.length === 1 ? 'file' : 'files'
-    const filesDescription = `${visibleFiles}/${files.length} changed ${filesPlural}`
+    const filesDescription = `${visibleFiles} of ${files.length}`
 
     const includeAllValue = this.getCheckAllValue(
       workingDirectory,
@@ -1149,37 +1167,57 @@ export class FilterChangesList extends React.Component<
     const disableAllCheckbox =
       files.length === 0 || isCommitting || rebaseConflictState !== null
 
-    const toBeCommittedFilterText = this.state.filterToIncludedCommit
-      ? 'Show files included and not included in the commit'
-      : 'Only show files to be included in the commit'
-
     return (
       <div
-        className="header"
+        className="header filter-field-row"
         onContextMenu={this.onContextMenu}
         ref={this.headerRef}
       >
-        <Checkbox
-          ref={this.includeAllCheckBoxRef}
-          value={includeAllValue}
-          onChange={this.onIncludeAllChanged}
-          disabled={disableAllCheckbox}
-          ariaLabelledBy="changes-list-check-all-label"
-        />
-
-        <Button
-          onClick={this.onFilterToIncludedInCommit}
-          className={classNames({
-            'included-in-commit-filter-on': this.state.filterToIncludedCommit,
-          })}
-          ariaLabel={toBeCommittedFilterText}
-          tooltip={toBeCommittedFilterText}
+        <TooltippedContent
+          tooltip={filesDescription}
+          direction={TooltipDirection.NORTH}
+          ancestorFocused={
+            this.includeAllCheckBoxRef.current?.isFocused() === true
+          }
+          openOnFocus={true}
         >
-          <Octicon symbol={octicons.filter} />
-        </Button>
-        <label id="changes-list-check-all-label"> {filesDescription}</label>
+          <Checkbox
+            ref={this.includeAllCheckBoxRef}
+            value={includeAllValue}
+            onChange={this.onIncludeAllChanged}
+            disabled={disableAllCheckbox}
+            ariaLabel={filesDescription}
+          />
+        </TooltippedContent>
+
+        <FilterSelectionTextBox
+          ref={this.onTextBoxRef}
+          displayClearButton={true}
+          autoFocus={true}
+          placeholder={'Filter'}
+          className="filter-list-filter-field"
+          onValueChanged={this.onFilterTextChanged}
+          onKeyDown={this.onFilterKeyDown}
+          value={this.state.filterText}
+          filterOptions={[
+            {
+              id: 'to-be-committed-files',
+              label: 'Checked',
+              value: this.state.filterToIncludedCommit
+                ? CheckboxValue.On
+                : CheckboxValue.Off,
+            },
+          ]}
+          onFilterOptionChanged={this.onFilterOptionsChanged}
+        />
       </div>
     )
+  }
+
+  private onFilterOptionsChanged = (option: FilterOption) => {
+    if (option.id === 'to-be-committed-files') {
+      this.onFilterToIncludedInCommit()
+    }
   }
 
   private isIncludedInCommit(item: IChangesListItem) {
@@ -1197,10 +1235,11 @@ export class FilterChangesList extends React.Component<
       <>
         <div className="changes-list-container file-list filtered-changes-list">
           <AugmentedSectionFilterList<IChangesListItem>
+            ref={this.filterListRef}
             id="changes-list"
             rowHeight={RowHeight}
             filterText={this.state.filterText}
-            onFilterTextChanged={this.onFilterTextChanged}
+            filterTextBox={this.filterTextBox?.textBoxRef?.current ?? undefined}
             onFilterListResultsChanged={this.onFilterListResultsChanged}
             selectedItems={this.state.selectedItems}
             selectionMode="multi"
@@ -1226,7 +1265,7 @@ export class FilterChangesList extends React.Component<
             }}
             onItemContextMenu={this.onItemContextMenu}
             ariaLabel={filesDescription}
-            renderPostFilterRow={this.renderFilterResultsHeader}
+            renderCustomFilterRow={this.renderFilterRow}
             renderNoItems={this.renderNoChanges}
             postNoResultsMessage={this.getNoResultsMessage()}
           />

@@ -17,44 +17,54 @@
     padding: 0 var(--spacing);
     height: 29px;
     flex: 0 0 auto;
-  }
 
-  .checkbox-component {
-    align-items: center;
-    height: 100%;
-    position: relative;
-
-    // We want the label to be positioned center with regards to the entire
-    // header so we position it absolute in relation to the checkbox component
-    // and give it a 100% width with padding on each side as to balance it out
-    // while still providing enough space for the checkbox.
-    label {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      padding: 0 30px;
-      text-align: center;
-
-      @include ellipsis;
+    > .filter-selection-text-box {
+      flex-grow: 1;
     }
 
-    input[type='checkbox'] {
-      flex-grow: 0;
-      flex-shrink: 0;
+    > .checkbox-component {
+      align-items: center;
+      height: 100%;
+      position: relative;
+
+      // We want the label to be positioned center with regards to the entire
+      // header so we position it absolute in relation to the checkbox component
+      // and give it a 100% width with padding on each side as to balance it out
+      // while still providing enough space for the checkbox.
+      label {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        padding: 0 30px;
+        text-align: center;
+
+        @include ellipsis;
+      }
+
+      input[type='checkbox'] {
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
     }
   }
 
   &.filtered-changes-list {
     .header {
       display: flex;
-      align-items: center;
+      align-items: top;
+      height: auto;
 
       label {
-        flex: 1;
         text-align: right;
+        padding: 0 var(--spacing-half);
       }
 
-      button {
+      > span {
+        display: flex;
+        align-items: center;
+      }
+
+      > button {
         padding: 1px 3px;
         margin-left: var(--spacing-half);
         border: none;
@@ -68,14 +78,6 @@
           color: var(--text-secondary-color);
           background-color: var(--secondary-button-background);
         }
-
-        &.included-in-commit-filter-on {
-          color: var(--link-button-color);
-
-          &:hover {
-            color: var(--link-button-hover-color);
-          }
-        }
       }
     }
   }
@@ -88,8 +90,7 @@
 
     .filter-field-row {
       background-color: var(--box-alt-background-color);
-      padding: var(--spacing);
-      padding-bottom: 0px;
+      padding: var(--spacing-half) var(--spacing);
       margin: 0;
     }
 
