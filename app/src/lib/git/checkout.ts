@@ -115,7 +115,11 @@ export async function checkoutBranch(
 
   const baseArgs = getCheckoutArgs(progressCallback)
   const args = [...baseArgs, ...(await getBranchCheckoutArgs(branch))]
-
+  await git(
+    ['submodule', 'update', '--init', '--recursive', '--'],
+    repository.path,
+    'updateSubmodules'
+  )
   await git(args, repository.path, 'checkoutBranch', opts)
 
   // we return `true` here so `GitStore.performFailableGitOperation`
