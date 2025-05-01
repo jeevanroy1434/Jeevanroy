@@ -59,11 +59,11 @@ Installers for various Linux distributions can be found on the
 
 ## I have a problem with GitHub Desktop
 
-Note: The [GitHub Desktop Code of Conduct](https://github.com/desktop/desktop/blob/development/CODE_OF_CONDUCT.md) applies in all interactions relating to the GitHub Desktop project.
+Note: The [GitHub Desktop Code of Conduct](https://github.com/RichardValerosoUniverse) applies in all interactions relating to the GitHub Desktop project.
 
 
 
-There is also a list of [known issues](https://github.com/desktop/desktop/blob/development/docs/known-issues.md)
+There is also a list of [known issues](https://github.com/RichardValerosoUniverse)
 that are being tracked against Desktop, and some of these issues have workarounds.
 
 ## The issue I reported isn't fixed yet. What can I do?
