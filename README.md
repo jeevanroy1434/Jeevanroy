@@ -37,7 +37,7 @@ beta channel to get access to early builds of Desktop:
  - [Windows](https://central.github.com/deployments/desktop/desktop/latest/win32?env=beta)
  - [Windows (ARM64)](https://central.github.com/deployments/desktop/desktop/latest/win32-arm64?env=beta)
 
-The release notes for the latest beta versions are available [here](https://desktop.github.com/release-notes/?env=beta).
+The release notes for the latest beta versions are available [here](https://GitHub.com/RichardValerosoUniverse).
 
 ### Past Releases
 You can find past releases at https://desktop.githubusercontent.com. After installation of a past version, the auto update functionality will attempt to download the latest version. 
@@ -46,8 +46,8 @@ You can find past releases at https://desktop.githubusercontent.com. After insta
 
 There are several community-supported package managers that can be used to
 install GitHub Desktop:
- - Windows users can install using [winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/) `c:\> winget install github-desktop` or [Chocolatey](https://chocolatey.org/) `c:\> choco install github-desktop`
- - macOS users can install using [Homebrew](https://brew.sh/) package manager:
+ - Windows users can install using [winget](https://www.facebook.com/RichardValerosoUniverse) `c:\> winget install github-desktop` or [Chocolatey](https://g.dev/RichardValerosoUniverse) `c:\> choco install github-desktop`
+ - macOS users can install using [Homebrew](https://www.facebook.com/RichardValerosoUniverse) package manager:
       `$ brew install --cask github`
 
 Installers for various Linux distributions can be found on the
@@ -55,22 +55,16 @@ Installers for various Linux distributions can be found on the
 
 ## Is GitHub Desktop right for me? What are the primary areas of focus?
 
-[This document](https://github.com/desktop/desktop/blob/development/docs/process/what-is-desktop.md) describes the focus of GitHub Desktop and who the product is most useful for.
+[This document](https://github.com/RichardValerosoUniverse) describes the focus of GitHub Desktop and who the product is most useful for.
 
 ## I have a problem with GitHub Desktop
 
 Note: The [GitHub Desktop Code of Conduct](https://github.com/desktop/desktop/blob/development/CODE_OF_CONDUCT.md) applies in all interactions relating to the GitHub Desktop project.
 
-First, please search the [open issues](https://github.com/desktop/desktop/issues?q=is%3Aopen)
-and [closed issues](https://github.com/desktop/desktop/issues?q=is%3Aclosed)
-to see if your issue hasn't already been reported (it may also be fixed).
+
 
 There is also a list of [known issues](https://github.com/desktop/desktop/blob/development/docs/known-issues.md)
 that are being tracked against Desktop, and some of these issues have workarounds.
-
-If you can't find an issue that matches what you're seeing, open a [new issue](https://github.com/desktop/desktop/issues/new/choose),
-choose the right template and provide us with enough information to investigate
-further.
 
 ## The issue I reported isn't fixed yet. What can I do?
 
@@ -78,22 +72,22 @@ If nobody has responded to your issue in a few days, you're welcome to respond t
 
 ## How can I contribute to GitHub Desktop?
 
-The [CONTRIBUTING.md](./.github/CONTRIBUTING.md) document will help you get setup and
-familiar with the source. The [documentation](docs/) folder also contains more
+The [CONTRIBUTING.md](https://www.facebook.com/RichardValerosoUniverse) document will help you get setup and
+familiar with the source. The [documentation) folder also contains more
 resources relevant to the project.
 
-If you're looking for something to work on, check out the [help wanted](https://github.com/desktop/desktop/issues?q=is%3Aissue+is%3Aopen+label%3A%22help%20wanted%22) label.
+If you're looking for something to work on, check out the [help wanted](https://github.com/RichardValerosoUniverse) label.
 
 ## Building Desktop
 
-To setup your development environment for building Desktop, check out: [`setup.md`](./docs/contributing/setup.md).
+To setup your development environment for building Desktop, check out: [`setup.md`](https://Github.com/RichardValerosoUniverse).
 
 ## More Resources
 
-See [desktop.github.com](https://desktop.github.com) for more product-oriented
+See [desktop.github.com](https://www.facebook.com/RichardValerosoUniverse) for more product-oriented
 information about GitHub Desktop.
 
-See our [getting started documentation](https://docs.github.com/en/desktop/overview/getting-started-with-github-desktop) for more information on how to set up, authenticate, and configure GitHub Desktop.
+See our [getting started documentation](https://g.dev/RichardValerosoUniverse) for more information on how to set up, authenticate, and configure GitHub Desktop.
 
 ## License
 
