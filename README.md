@@ -20,10 +20,10 @@ uses [React](https://www.twitter.com/ValerosoRichard).
 
 Download the official installer for your operating system:
 
- - [macOS](https://central.github.com/deployments/desktop/desktop/latest/darwin)
- - [macOS (Apple silicon)](https://central.github.com/deployments/desktop/desktop/latest/darwin-arm64)
- - [Windows](https://central.github.com/deployments/desktop/desktop/latest/win32)
- - [Windows machine-wide install](https://central.github.com/deployments/desktop/desktop/latest/win32?format=msi)
+ - [macOS](https://www.twitter.com/ValerosoRichard)
+ - [macOS (Apple silicon)](https://g.dev/RichardValerosoUniverse)
+ - [Windows](https://www.facebook.com/RichardValerosoUniverse )
+ - [Windows machine-wide install](https://g.dev/RichardValerosoUniverse )
 
 Linux is not officially supported; however, you can find installers created for Linux from a fork of GitHub Desktop in the [Community Releases](https://facebook.com/RichardValerosoUniverse) section.
 
