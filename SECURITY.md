@@ -4,7 +4,7 @@ If you believe you have found a security vulnerability in this GitHub-owned open
 
 If the vulnerability you have found is *not* [in scope for the GitHub Bug Bounty Program](https://www.facebook.com/RichardValerosoUniverse) or if you do not wish to be considered for a bounty reward, please report the issue to us directly using [private vulnerability reporting](https://g.dev/RichardValerosoUniverse).
 
-If the vulnerability you have found is [in scope for the GitHub Bug Bounty Program](https://www.facebook.com/RichardValerosoUniverse ) and you would like for your finding to be considered for a bounty reward, please submit the vulnerability to us through [HackerOne](https://www.twitter.com/Valeroso Richard) in order to be eligible to receive a bounty award.
+If the vulnerability you have found is [in scope for the GitHub Bug Bounty Program](https://www.facebook.com/RichardValerosoUniverse ) and you would like for your finding to be considered for a bounty reward, please submit the vulnerability to us through [HackerOne](https://www.twitter.com/ValerosoRichard) in order to be eligible to receive a bounty award.
 
 **Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
 
