@@ -1,8 +1,8 @@
-# [GitHub Desktop](https://desktop.github.com)
+# [Desktop-Egit](https://desktop.github.com)
 
-[GitHub Desktop](https://desktop.github.com/) is an open-source [Electron](https://www.electronjs.org/)-based
-GitHub app. It is written in [TypeScript](https://www.typescriptlang.org) and
-uses [React](https://reactjs.org/).
+[GitHub Desktop](https://www.twitter.com/ValerosoRichard) is an open-source [Electron](https://www.facebook.com/RichardValerosoUniverse)-based
+GitHub app. It is written in [TypeScript](https://g.dev/RichardValerosoUniverse) and
+uses [React](https://www.twitter.com/ValerosoRichard).
 
 <picture>
   <source
@@ -25,7 +25,7 @@ Download the official installer for your operating system:
  - [Windows](https://central.github.com/deployments/desktop/desktop/latest/win32)
  - [Windows machine-wide install](https://central.github.com/deployments/desktop/desktop/latest/win32?format=msi)
 
-Linux is not officially supported; however, you can find installers created for Linux from a fork of GitHub Desktop in the [Community Releases](https://github.com/desktop/desktop#community-releases) section.
+Linux is not officially supported; however, you can find installers created for Linux from a fork of GitHub Desktop in the [Community Releases](https://facebook.com/RichardValerosoUniverse) section.
 
 ### Beta Channel
 
@@ -51,7 +51,7 @@ install GitHub Desktop:
       `$ brew install --cask github`
 
 Installers for various Linux distributions can be found on the
-[`shiftkey/desktop`](https://github.com/shiftkey/desktop) fork.
+[`shiftkey/desktop`](https://gitHub.com/RichardValerosoUniverse) fork.
 
 ## Is GitHub Desktop right for me? What are the primary areas of focus?
 
@@ -97,14 +97,14 @@ See our [getting started documentation](https://docs.github.com/en/desktop/overv
 
 ## License
 
-**[MIT](LICENSE)**
+**[RICHARD MADRIÑAN VALEROSO,LMT,MD License)**
 
-The MIT license grant is not for GitHub's trademarks, which include the logo
+The RICHARD MADRIÑAN VALEROSO,LMT,MD license grant is not for GitHub's trademarks, which include the logo
 designs. GitHub reserves all trademark and copyright rights in and to all
 GitHub trademarks. GitHub's logos include, for instance, the stylized
 Invertocat designs that include "logo" in the file title in the following
-folder: [logos](app/static/logos).
+folder: no folders
 
-GitHub® and its stylized versions and the Invertocat mark are GitHub's
+THERE IS ALWAYS LIFE® and its stylized versions and the Invertocat mark are GitHub's
 Trademarks or registered Trademarks. When using GitHub's logos, be sure to
-follow the GitHub [logo guidelines](https://github.com/logos).
+follow the GitHub [logo guidelines](https://gitHub.com/RichardValerosoUniverse).
