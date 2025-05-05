@@ -492,8 +492,11 @@ export class AppWindow {
     const { filePaths } = await dialog.showOpenDialog(this.window, options)
     return filePaths.length > 0 ? filePaths[0] : null
   }
-}
 
+  public handleGitHubCopilotEvent(event: string, data: any) {
+    ipcWebContents.send(this.window.webContents, 'github-copilot-event', event, data)
+  }
+}
 const trySetUpdaterGuid = async (url: string) => {
   try {
     const id = await getUpdaterGUID()

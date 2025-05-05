@@ -12,8 +12,12 @@ let windowsToastActivatorClsid: string | undefined = undefined
 
 export function initializeDesktopNotifications() {
   if (__LINUX__) {
-    // notifications not currently supported
-    return
+    if (isEndevourOS()) {
+      initializeNotifications({})
+    } else {
+      // notifications not currently supported
+      return
+    }
   }
 
   if (__DARWIN__) {
@@ -55,4 +59,19 @@ export function installNotificationCallback(window: BrowserWindow) {
       userInfo
     )
   })
+
+  onNotificationEvent('github-copilot', (event, id, userInfo) => {
+    ipcWebContents.send(
+      window.webContents,
+      'github-copilot-notification',
+      event,
+      id,
+      userInfo
+    )
+  })
+}
+
+function isEndevourOS(): boolean {
+  const osRelease = require('os').release().toLowerCase()
+  return osRelease.includes('endevour')
 }

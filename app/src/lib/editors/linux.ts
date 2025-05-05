@@ -211,6 +211,18 @@ const editors: ILinuxExternalEditor[] = [
       '/usr/bin/zed',
     ],
   },
+  {
+    name: 'GitHub Copilot',
+    paths: ['/usr/bin/github-copilot'],
+  },
+  {
+    name: 'Endevour OS Editor',
+    paths: [
+      '/usr/bin/endevour-editor',
+      '/usr/local/bin/endevour-editor',
+      '/opt/endevour-editor/bin/endevour-editor',
+    ],
+  },
 ]
 
 async function getAvailablePath(paths: string[]): Promise<string | null> {

@@ -26,6 +26,24 @@ const run = (...args: Array<string>) => {
       .on('error', cb)
       .on('exit', code => (process.exitCode = code ?? process.exitCode))
       .unref()
+  } else if (process.platform === 'linux') {
+    const exeName = `GitHubDesktop${__DEV__ ? '-dev' : ''}`
+    spawn(join(__dirname, `../../${exeName}`), args, {
+      detached: true,
+      stdio: 'ignore',
+    })
+      .on('error', cb)
+      .on('exit', code => (process.exitCode = code ?? process.exitCode))
+      .unref()
+  } else if (process.platform === 'endevour') {
+    const exeName = `GitHubDesktop${__DEV__ ? '-dev' : ''}`
+    spawn(join(__dirname, `../../${exeName}`), args, {
+      detached: true,
+      stdio: 'ignore',
+    })
+      .on('error', cb)
+      .on('exit', code => (process.exitCode = code ?? process.exitCode))
+      .unref()
   } else {
     throw new Error('Unsupported platform')
   }
@@ -67,6 +85,8 @@ if (args.help || args._.at(0) === 'help') {
   } else {
     run(`--cli-clone=${url}`)
   }
+} else if (args._.at(0) === 'github-copilot') {
+  run('--cli-github-copilot')
 } else {
   const [firstArg, secondArg] = args._
   const pathArg = firstArg === 'open' ? secondArg : firstArg

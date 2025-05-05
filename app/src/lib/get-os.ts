@@ -33,9 +33,17 @@ export function getOS(): string {
     return `Mac OS ${version}`
   } else if (__WIN32__) {
     return `Windows ${version}`
+  } else if (isEndevourOS()) {
+    return `Endevour OS ${version}`
   } else {
     return `${OS.type()} ${version}`
   }
+}
+
+/** Detect if the OS is Endevour OS */
+function isEndevourOS(): boolean {
+  const osRelease = OS.release().toLowerCase()
+  return osRelease.includes('endevour')
 }
 
 /** We're currently running macOS and it is macOS Ventura. */

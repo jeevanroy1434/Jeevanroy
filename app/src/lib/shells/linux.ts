@@ -28,6 +28,8 @@ export enum Shell {
   LXTerminal = 'LXDE Terminal',
   Warp = 'Warp',
   Ghostty = 'Ghostty',
+  Endevour = 'Endevour Terminal',
+  GitHubCopilot = 'GitHub Copilot',
 }
 
 export const Default = Shell.Gnome
@@ -76,6 +78,10 @@ function getShellPath(shell: Shell): Promise<string | null> {
       return getPathIfAvailable('/usr/bin/warp-terminal')
     case Shell.Ghostty:
       return getPathIfAvailable('/usr/bin/ghostty')
+    case Shell.Endevour:
+      return getPathIfAvailable('/usr/bin/endevour-terminal')
+    case Shell.GitHubCopilot:
+      return getPathIfAvailable('/usr/bin/github-copilot')
     default:
       return assertNever(shell, `Unknown shell: ${shell}`)
   }
@@ -102,6 +108,8 @@ export async function getAvailableShells(): Promise<
     lxterminalPath,
     warpPath,
     ghosttyPath,
+    endevourPath,
+    githubCopilotPath,
   ] = await Promise.all([
     getShellPath(Shell.Gnome),
     getShellPath(Shell.GnomeConsole),
@@ -120,6 +128,8 @@ export async function getAvailableShells(): Promise<
     getShellPath(Shell.LXTerminal),
     getShellPath(Shell.Warp),
     getShellPath(Shell.Ghostty),
+    getShellPath(Shell.Endevour),
+    getShellPath(Shell.GitHubCopilot),
   ])
 
   const shells: Array<FoundShell<Shell>> = []
@@ -191,6 +201,14 @@ export async function getAvailableShells(): Promise<
     shells.push({ shell: Shell.Ghostty, path: ghosttyPath })
   }
 
+  if (endevourPath) {
+    shells.push({ shell: Shell.Endevour, path: endevourPath })
+  }
+
+  if (githubCopilotPath) {
+    shells.push({ shell: Shell.GitHubCopilot, path: githubCopilotPath })
+  }
+
   return shells
 }
 
@@ -227,6 +245,10 @@ export function launch(
       return spawn(foundShell.path, ['--working-directory=' + path])
     case Shell.Warp:
       return spawn(foundShell.path, [], { cwd: path })
+    case Shell.Endevour:
+      return spawn(foundShell.path, ['--working-directory', path])
+    case Shell.GitHubCopilot:
+      return spawn(foundShell.path, ['--working-directory', path])
     default:
       return assertNever(shell, `Unknown shell: ${shell}`)
   }
