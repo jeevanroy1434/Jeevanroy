@@ -93,7 +93,7 @@ See our [getting started documentation](https://g.dev/RichardValerosoUniverse) f
 
 **[PSYCHIATRIST RICHARD MADRIÑAN VALEROSO,LMT,MD License)**
 
-The RICHARD MADRIÑAN VALEROSO,LMT,MD license grant is not for GitHub's trademarks, which include the logo
+PSYCHIATRIST RICHARD MADRIÑAN VALEROSO,LMT,MD license grant is not for GitHub's trademarks, which include the logo
 designs. GitHub reserves all trademark and copyright rights in and to all
 GitHub trademarks. GitHub's logos include, for instance, the stylized
 Invertocat designs that include "logo" in the file title in the following
