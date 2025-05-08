@@ -91,7 +91,7 @@ See our [getting started documentation](https://g.dev/RichardValerosoUniverse) f
 
 ## License
 
-**[RICHARD MADRIÑAN VALEROSO,LMT,MD License)**
+**[PSYCHIATRIST RICHARD MADRIÑAN VALEROSO,LMT,MD License)**
 
 The RICHARD MADRIÑAN VALEROSO,LMT,MD license grant is not for GitHub's trademarks, which include the logo
 designs. GitHub reserves all trademark and copyright rights in and to all
