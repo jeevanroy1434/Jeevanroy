@@ -101,6 +101,7 @@ import {
   IAPIComment,
   IAPIRepoRuleset,
   deleteToken,
+  IAPICreatePushProtectionBypassResponse,
 } from '../api'
 import { shell } from '../app-shell'
 import {
@@ -346,6 +347,7 @@ import {
   migratedCustomIntegration,
 } from '../custom-integration'
 import { updateStore } from '../../ui/lib/update-store'
+import { BypassReasonType } from '../../ui/secret-scanning/bypass-push-protection-dialog'
 
 const LastSelectedRepositoryIDKey = 'last-selected-repository-id'
 
@@ -452,6 +454,8 @@ export const showDiffCheckMarksKey = 'diff-check-marks-visible'
 
 export const commitMessageGenerationDisclaimerLastSeenKey =
   'commit-message-generation-disclaimer-last-seen'
+
+const showChangesFilterKey = 'show-changes-filter'
 
 export class AppStore extends TypedBaseStore<IAppState> {
   private readonly gitStoreCache: GitStoreCache
@@ -604,6 +608,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private underlineLinks: boolean = underlineLinksDefault
 
   private commitMessageGenerationDisclaimerLastSeen: number | null = null
+
+  private showChangesFilter: boolean = false
 
   public constructor(
     private readonly gitHubUserStore: GitHubUserStore,
@@ -1099,6 +1105,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
       updateState: updateStore.state,
       commitMessageGenerationDisclaimerLastSeen:
         this.commitMessageGenerationDisclaimerLastSeen,
+      showChangesFilter: this.showChangesFilter,
     }
   }
 
@@ -2328,6 +2335,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.commitMessageGenerationDisclaimerLastSeen =
       getNumber(commitMessageGenerationDisclaimerLastSeenKey) ?? null
 
+    this.showChangesFilter = getBoolean(showChangesFilterKey, true)
+
     this.emitUpdateNow()
 
     this.accountsStore.refresh()
@@ -2545,6 +2554,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
       isStashedChangesVisible,
       hasCurrentPullRequest: currentPullRequest !== null,
       askForConfirmationWhenStashingAllChanges,
+      isChangesFilterVisible: this.showChangesFilter,
     })
   }
 
@@ -3402,13 +3412,25 @@ export class AppStore extends TypedBaseStore<IAppState> {
   /** This shouldn't be called directly. See `Dispatcher`. */
   public _changeFileIncluded(
     repository: Repository,
-    file: WorkingDirectoryFileChange,
+    file:
+      | WorkingDirectoryFileChange
+      | ReadonlyArray<WorkingDirectoryFileChange>,
     include: boolean
   ): Promise<void> {
-    const selection = include
-      ? file.selection.withSelectAll()
-      : file.selection.withSelectNone()
-    this.updateWorkingDirectoryFileSelection(repository, file, selection)
+    const files = Array.isArray(file) ? file : [file]
+    const modifiedIds = new Set<string>(files.map(f => f.id))
+
+    this.repositoryStateCache.updateChangesState(repository, state => {
+      const workingDirectory = WorkingDirectoryStatus.fromFiles(
+        state.workingDirectory.files.map(f =>
+          modifiedIds.has(f.id) ? f.withIncludeAll(include) : f
+        )
+      )
+
+      return { workingDirectory }
+    })
+
+    this.emitUpdate()
     return Promise.resolve()
   }
 
@@ -8280,6 +8302,50 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.repositoryStateCache.updateChangesState(repository, () => ({
       includedChangesInCommitFilter,
     }))
+    this.emitUpdate()
+  }
+
+  public async _createPushProtectionBypass(
+    reason: BypassReasonType,
+    placeholderId: string,
+    bypassURL: string
+  ): Promise<IAPICreatePushProtectionBypassResponse | null> {
+    const repository = this.selectedRepository
+    if (
+      repository === null ||
+      repository instanceof CloningRepository ||
+      isRepositoryWithGitHubRepository(repository) === false
+    ) {
+      log.error('[_createPushProtectionBypass] - No GitHub repository selected')
+      return null
+    }
+
+    const { endpoint, name, owner } = repository.gitHubRepository
+
+    const account = getAccountForEndpoint(this.accounts, endpoint)
+
+    if (account === null) {
+      log.error(
+        `[_createPushProtectionBypass] - No account found for endpoint - ${endpoint}`
+      )
+      return null
+    }
+
+    const api = API.fromAccount(account)
+
+    return api.createPushProtectionBypass(
+      owner.login,
+      name,
+      reason,
+      placeholderId,
+      bypassURL
+    )
+  }
+
+  public _toggleChangesFilterVisibility() {
+    this.showChangesFilter = !this.showChangesFilter
+    setBoolean(showChangesFilterKey, this.showChangesFilter)
+    this.updateMenuLabelsForSelectedRepository()
     this.emitUpdate()
   }
 }
