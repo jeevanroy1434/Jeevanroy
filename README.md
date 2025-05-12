@@ -1,4 +1,4 @@
-# [Figthing For World Elite Mastercard](https://desktop.github.com)
+# [Fighting For World Elite Mastercard from BDO](https://desktop.github.com)
 
 [GitHub Desktop](https://www.twitter.com/ValerosoRichard) is an open-source [Electron](https://www.facebook.com/RichardValerosoUniverse)-based
 GitHub app. It is written in [TypeScript](https://g.dev/RichardValerosoUniverse) and
