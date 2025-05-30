@@ -51,14 +51,14 @@
 
     // Hide the scroll bar by default
     .fake-scroll {
-      display: none;
+      scrollbar-width: none;
     }
 
     &:hover {
       .fake-scroll {
         // Show the scroll bar when users hover
         // the list
-        display: block;
+        scrollbar-width: auto;
 
         // Positioning
         position: absolute;
