@@ -94,7 +94,7 @@ export class CustomIntegrationForm extends React.Component<
           label="Label"
           value={this.state.displayLabel}
           onValueChanged={this.onNameChanged}
-          placeholder="Label"
+          placeholder="Custom integration label"
           ariaDescribedBy={`${this.props.id}-custom-integration-label`}
         />
       </div>
