@@ -1315,7 +1315,7 @@ export class App extends React.Component<IAppProps, IAppState> {
    */
   private get externalEditorLabel() {
     return this.state.useCustomEditor
-      ? undefined
+      ? this.state.customEditor?.displayLabel
       : this.state.selectedExternalEditor ?? undefined
   }
 
@@ -3059,7 +3059,7 @@ export class App extends React.Component<IAppProps, IAppState> {
       onViewOnGitHub: this.viewOnGitHub,
       repository: repository,
       shellLabel: this.state.useCustomShell
-        ? undefined
+        ? this.state.customShell?.displayLabel
         : this.state.selectedShell,
     })
 
