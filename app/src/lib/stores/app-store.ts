@@ -2519,17 +2519,23 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private updateMenuItemLabels(state: IRepositoryState | null) {
     const {
       useCustomShell,
+      customShell,
       selectedShell,
       selectedRepository,
       useCustomEditor,
+      customEditor,
       selectedExternalEditor,
       askForConfirmationOnRepositoryRemoval,
       askForConfirmationOnForcePush,
     } = this
 
     const labels: MenuLabelsEvent = {
-      selectedShell: useCustomShell ? null : selectedShell,
-      selectedExternalEditor: useCustomEditor ? null : selectedExternalEditor,
+      selectedShell: useCustomShell
+        ? (customShell?.displayLabel as Shell || null)
+        : selectedShell,
+      selectedExternalEditor: useCustomEditor
+        ? (customEditor?.displayLabel || null)
+        : selectedExternalEditor,
       askForConfirmationOnRepositoryRemoval,
       askForConfirmationOnForcePush,
     }

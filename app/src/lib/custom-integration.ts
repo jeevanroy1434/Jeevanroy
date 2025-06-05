@@ -2,8 +2,10 @@ import { parseCommandLineArgv } from 'windows-argv-parser'
 import stringArgv from 'string-argv'
 import { promisify } from 'util'
 import { exec, spawn, SpawnOptions } from 'child_process'
-import { access, lstat } from 'fs/promises'
+import { access, lstat, realpath } from 'fs/promises'
 import * as fs from 'fs'
+import { basename } from 'path'
+import { upperFirst } from 'lodash'
 
 const execAsync = promisify(exec)
 
@@ -18,6 +20,7 @@ export interface ICustomIntegration {
   readonly arguments: string
   /** The bundle ID of the custom integration (macOS only) */
   readonly bundleID?: string
+  readonly displayLabel?: string
 }
 
 /**
@@ -92,12 +95,13 @@ export function checkTargetPathArgument(args: ReadonlyArray<string>): boolean {
  */
 export async function validateCustomIntegrationPath(
   path: string
-): Promise<{ isValid: boolean; bundleID?: string }> {
+): Promise<{ isValid: boolean; bundleID?: string; name?: string }> {
   if (path.length === 0) {
     return { isValid: false }
   }
 
   let bundleID = undefined
+  let name = undefined
 
   try {
     const pathStat = await lstat(path)
@@ -113,9 +117,13 @@ export async function validateCustomIntegrationPath(
     // the app bundle ID)
     if (__DARWIN__ && !isExecutableFile && pathStat.isDirectory()) {
       bundleID = await getAppBundleID(path)
+      // `.app`
+      name = basename(path, '.app').trim()
+    } else {
+      name = basename(await realpath(path)).trim()
     }
 
-    return { isValid: isExecutableFile || !!bundleID, bundleID }
+    return { isValid: isExecutableFile || !!bundleID, bundleID, name: upperFirst(name) }
   } catch (e) {
     if (e.code !== 'ENOENT') {
       log.error(`Failed to validate path: ${path}`, e)

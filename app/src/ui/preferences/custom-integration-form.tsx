@@ -15,13 +15,16 @@ interface ICustomIntegrationFormProps {
   readonly id: string
   readonly path: string
   readonly arguments: string
+  readonly displayLabel?: string
   readonly onPathChanged: (path: string, bundleID?: string) => void
   readonly onArgumentsChanged: (args: string) => void
+  readonly onLabelChanged?: (name: string) => void
 }
 
 interface ICustomIntegrationFormState {
   readonly path: string
   readonly arguments: string
+  readonly displayLabel: string
   /** Whether or not the current path is valid */
   readonly isValidPath: boolean
   /** Whether or not to show a warning for an invalid path */
@@ -50,6 +53,7 @@ export class CustomIntegrationForm extends React.Component<
     this.state = {
       path: props.path,
       arguments: props.arguments,
+      displayLabel: props.displayLabel || '',
       isValidPath: false,
       showNonValidPathWarning: false,
       isValidArgs: false,
@@ -86,6 +90,13 @@ export class CustomIntegrationForm extends React.Component<
           ariaDescribedBy={`${this.props.id}-custom-integration-args-error`}
         />
         {this.renderArgsErrors()}
+        <TextBox
+          label="Label"
+          value={this.state.displayLabel}
+          onValueChanged={this.onNameChanged}
+          placeholder="Label"
+          ariaDescribedBy={`${this.props.id}-custom-integration-label`}
+        />
       </div>
     )
   }
@@ -158,10 +169,16 @@ export class CustomIntegrationForm extends React.Component<
     this.setState({
       isValidPath: result.isValid,
       showNonValidPathWarning: !result.isValid,
+      ...(result.name ? { displayLabel: result.name } : ({} as any)),
     })
 
     if (result.isValid) {
       this.props.onPathChanged(path, result.bundleID)
+    }
+
+    if (result.name) {
+      this.setState({ displayLabel: result.name })
+      this.props.onLabelChanged?.(result.name)
     }
   }
 
@@ -205,5 +222,10 @@ export class CustomIntegrationForm extends React.Component<
 
   private onParamsChanged = (params: string) => {
     this.updateArguments(params)
+  }
+
+  private onNameChanged = (name: string) => {
+    this.setState({ displayLabel: name })
+    this.props.onLabelChanged?.(name)
   }
 }

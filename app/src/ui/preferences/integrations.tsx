@@ -260,8 +260,10 @@ export class Integrations extends React.Component<
           ref={this.customEditorFormRef}
           path={this.state.customEditor.path ?? ''}
           arguments={this.state.customEditor.arguments}
+          displayLabel={this.state.customEditor.displayLabel}
           onPathChanged={this.onCustomEditorPathChanged}
           onArgumentsChanged={this.onCustomEditorArgumentsChanged}
+          onLabelChanged={this.onCustomEditorLabelChanged}
         />
       </Row>
     )
@@ -272,6 +274,7 @@ export class Integrations extends React.Component<
       path,
       bundleID,
       arguments: this.state.customEditor.arguments ?? [],
+      displayLabel: this.state.customEditor.displayLabel ?? 'External Editor',
     }
 
     this.setState({ customEditor })
@@ -283,6 +286,19 @@ export class Integrations extends React.Component<
       path: this.state.customEditor.path,
       bundleID: this.state.customEditor.bundleID,
       arguments: args,
+      displayLabel: this.state.customEditor.displayLabel,
+    }
+
+    this.setState({ customEditor })
+    this.props.onCustomEditorChanged(customEditor)
+  }
+
+  private onCustomEditorLabelChanged = (label: string) => {
+    const customEditor: ICustomIntegration = {
+      path: this.state.customEditor.path,
+      bundleID: this.state.customEditor.bundleID,
+      arguments: this.state.customEditor.arguments ?? [],
+      displayLabel: label.trim(),
     }
 
     this.setState({ customEditor })
@@ -321,9 +337,11 @@ export class Integrations extends React.Component<
           id="custom-shell"
           ref={this.customShellFormRef}
           path={this.state.customShell.path}
+          displayLabel={this.state.customShell.displayLabel}
           arguments={this.state.customShell.arguments}
           onPathChanged={this.onCustomShellPathChanged}
           onArgumentsChanged={this.onCustomShellArgumentsChanged}
+          onLabelChanged={this.onCustomShellLabelChanged}
         />
       </Row>
     )
@@ -334,6 +352,7 @@ export class Integrations extends React.Component<
       path,
       bundleID,
       arguments: this.state.customShell.arguments ?? [],
+      displayLabel: this.state.customShell.displayLabel,
     }
 
     this.setState({ customShell })
@@ -345,6 +364,19 @@ export class Integrations extends React.Component<
       path: this.state.customShell.path ?? '',
       bundleID: this.state.customShell.bundleID,
       arguments: args,
+      displayLabel: this.state.customShell.displayLabel,
+    }
+
+    this.setState({ customShell })
+    this.props.onCustomShellChanged(customShell)
+  }
+
+  private onCustomShellLabelChanged = (label: string) => {
+    const customShell: ICustomIntegration = {
+      path: this.state.customShell.path ?? '',
+      bundleID: this.state.customShell.bundleID,
+      arguments: this.state.customShell.arguments ?? [],
+      displayLabel: label.trim(),
     }
 
     this.setState({ customShell })
