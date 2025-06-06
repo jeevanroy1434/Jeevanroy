@@ -1313,10 +1313,16 @@ export class App extends React.Component<IAppProps, IAppState> {
    * Gets a label string for the currently selected external editor, or
    * `undefined` if the user has selected a custom editor.
    */
-  private get externalEditorLabel() {
+  private get editorLabel() {
     return this.state.useCustomEditor
       ? this.state.customEditor?.displayLabel
       : this.state.selectedExternalEditor ?? undefined
+  }
+
+  private get shellLabel() {
+    return this.state.useCustomShell
+      ? this.state.customShell?.displayLabel
+      : this.state.selectedShell
   }
 
   private openCurrentRepositoryInExternalEditor() {
@@ -2866,7 +2872,6 @@ export class App extends React.Component<IAppProps, IAppState> {
       ? this.state.selectedState.repository
       : null
 
-    const { useCustomShell, selectedShell } = this.state
     const filterText = this.state.repositoryFilterText
     return (
       <RepositoriesList
@@ -2885,8 +2890,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         onOpenInShell={this.openInShell}
         onShowRepository={this.showRepository}
         onOpenInExternalEditor={this.openInExternalEditor}
-        externalEditorLabel={this.externalEditorLabel}
-        shellLabel={useCustomShell ? undefined : selectedShell}
+        externalEditorLabel={this.editorLabel}
+        shellLabel={this.shellLabel}
         dispatcher={this.props.dispatcher}
       />
     )
@@ -3053,14 +3058,12 @@ export class App extends React.Component<IAppProps, IAppState> {
       onOpenInExternalEditor: this.openInExternalEditor,
       askForConfirmationOnRemoveRepository:
         this.state.askForConfirmationOnRepositoryRemoval,
-      externalEditorLabel: this.externalEditorLabel,
+      externalEditorLabel: this.editorLabel,
       onChangeRepositoryAlias: onChangeRepositoryAlias,
       onRemoveRepositoryAlias: onRemoveRepositoryAlias,
       onViewOnGitHub: this.viewOnGitHub,
       repository: repository,
-      shellLabel: this.state.useCustomShell
-        ? this.state.customShell?.displayLabel
-        : this.state.selectedShell,
+      shellLabel: this.shellLabel,
     })
 
     showContextualMenu(items)
@@ -3411,7 +3414,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           isExternalEditorAvailable={
             state.useCustomEditor || state.selectedExternalEditor !== null
           }
-          externalEditorLabel={this.externalEditorLabel}
+          externalEditorLabel={this.editorLabel}
           resolvedExternalEditor={state.resolvedExternalEditor}
           onOpenInExternalEditor={this.onOpenInExternalEditor}
           appMenu={state.appMenuState[0]}
