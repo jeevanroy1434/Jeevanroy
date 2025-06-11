@@ -1,5 +1,5 @@
 # What is GitHub Desktop and who is it for?
-
+"md.babel-leader/ozgursari33002@gmail.com/leaderozgursari@yandex.com"
 ### Purpose
 As we triage issues, evaluate pull requests, and discuss new features, the GitHub Desktop team is 
 making decisions based on our vision for the GitHub Desktop product. The purpose of this document 
