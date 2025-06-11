@@ -276,9 +276,15 @@ export class SideBySideDiffRow extends React.Component<
           'expandable-both': row.expansionType === DiffHunkExpansionType.Both,
         })
         return (
-          <div className={rowClasses} role="cell">
-            {this.renderHunkHeaderGutter(row.hunkIndex, row.expansionType)}
-            {this.renderContentFromString(row.content)}
+          <div
+            className={rowClasses}
+            role="row"
+            aria-rowindex={this.props.numRow}
+          >
+            <div role="cell">
+              {this.renderHunkHeaderGutter(row.hunkIndex, row.expansionType)}
+            </div>
+            <div role="cell">{this.renderContentFromString(row.content)}</div>
           </div>
         )
       }
@@ -287,8 +293,12 @@ export class SideBySideDiffRow extends React.Component<
         const { beforeLineNumber, afterLineNumber } = row
         if (!showSideBySideDiff) {
           return (
-            <div className={rowClasses} role="cell">
-              <div className="before">
+            <div
+              className={rowClasses}
+              role="row"
+              aria-rowindex={this.props.numRow}
+            >
+              <div className="before" role="cell">
                 {this.renderLineNumbers(
                   [beforeLineNumber, afterLineNumber],
                   undefined
@@ -300,12 +310,16 @@ export class SideBySideDiffRow extends React.Component<
         }
 
         return (
-          <div className={rowClasses} role="cell">
-            <div className="before">
+          <div
+            className={rowClasses}
+            role="row"
+            aria-rowindex={this.props.numRow}
+          >
+            <div className="before" role="cell">
               {this.renderLineNumber(beforeLineNumber, DiffColumn.Before)}
               {this.renderContentFromString(row.content, row.beforeTokens)}
             </div>
-            <div className="after">
+            <div className="after" role="cell">
               {this.renderLineNumber(afterLineNumber, DiffColumn.After)}
               {this.renderContentFromString(row.content, row.afterTokens)}
             </div>
@@ -317,9 +331,13 @@ export class SideBySideDiffRow extends React.Component<
         const rowClasses = classNames('added', baseRowClasses)
         if (!showSideBySideDiff) {
           return (
-            <div className={rowClasses} role="cell">
+            <div
+              className={rowClasses}
+              role="row"
+              aria-rowindex={this.props.numRow}
+            >
               {this.renderHunkHandle()}
-              <div className={afterClasses}>
+              <div className={afterClasses} role="cell">
                 {this.renderLineNumbers(
                   [undefined, lineNumber],
                   DiffColumn.After,
@@ -333,14 +351,18 @@ export class SideBySideDiffRow extends React.Component<
         }
 
         return (
-          <div className={rowClasses} role="cell">
-            <div className={beforeClasses}>
+          <div
+            className={rowClasses}
+            role="row"
+            aria-rowindex={this.props.numRow}
+          >
+            <div className={beforeClasses} role="cell">
               {this.renderLineNumber(undefined, DiffColumn.Before)}
               {this.renderContentFromString('')}
               {this.renderWhitespaceHintPopover(DiffColumn.Before)}
             </div>
             {this.renderHunkHandle()}
-            <div className={afterClasses}>
+            <div className={afterClasses} role="cell">
               {this.renderLineNumber(lineNumber, DiffColumn.After, isSelected)}
               {this.renderContent(row.data, DiffRowPrefix.Added)}
               {this.renderWhitespaceHintPopover(DiffColumn.After)}
@@ -353,9 +375,13 @@ export class SideBySideDiffRow extends React.Component<
         const rowClasses = classNames('deleted', baseRowClasses)
         if (!showSideBySideDiff) {
           return (
-            <div className={rowClasses} role="cell">
+            <div
+              className={rowClasses}
+              role="row"
+              aria-rowindex={this.props.numRow}
+            >
               {this.renderHunkHandle()}
-              <div className={beforeClasses}>
+              <div className={beforeClasses} role="cell">
                 {this.renderLineNumbers(
                   [lineNumber, undefined],
                   DiffColumn.Before,
@@ -369,14 +395,18 @@ export class SideBySideDiffRow extends React.Component<
         }
 
         return (
-          <div className={rowClasses} role="cell">
-            <div className={beforeClasses}>
+          <div
+            className={rowClasses}
+            role="row"
+            aria-rowindex={this.props.numRow}
+          >
+            <div className={beforeClasses} role="cell">
               {this.renderLineNumber(lineNumber, DiffColumn.Before, isSelected)}
               {this.renderContent(row.data, DiffRowPrefix.Deleted)}
               {this.renderWhitespaceHintPopover(DiffColumn.Before)}
             </div>
             {this.renderHunkHandle()}
-            <div className={afterClasses}>
+            <div className={afterClasses} role="cell">
               {this.renderLineNumber(undefined, DiffColumn.After)}
               {this.renderContentFromString('', [])}
               {this.renderWhitespaceHintPopover(DiffColumn.After)}
@@ -388,8 +418,12 @@ export class SideBySideDiffRow extends React.Component<
         const { beforeData: before, afterData: after } = row
         const rowClasses = classNames('modified', baseRowClasses)
         return (
-          <div className={rowClasses} role="cell">
-            <div className={beforeClasses}>
+          <div
+            className={rowClasses}
+            role="row"
+            aria-rowindex={this.props.numRow}
+          >
+            <div className={beforeClasses} role="cell">
               {this.renderLineNumber(
                 before.lineNumber,
                 DiffColumn.Before,
@@ -399,7 +433,7 @@ export class SideBySideDiffRow extends React.Component<
               {this.renderWhitespaceHintPopover(DiffColumn.Before)}
             </div>
             {this.renderHunkHandle()}
-            <div className={afterClasses}>
+            <div className={afterClasses} role="cell">
               {this.renderLineNumber(
                 after.lineNumber,
                 DiffColumn.After,
