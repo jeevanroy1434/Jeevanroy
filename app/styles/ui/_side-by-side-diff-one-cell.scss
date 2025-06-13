@@ -1,4 +1,4 @@
-.side-by-side-diff-container {
+.side-by-side-diff-container-one-cell {
   --width-line-number: 55px;
 
   --hunk-handle-width-with-check-all: 16px;
@@ -33,13 +33,25 @@
 
   &.editable {
     .row {
-      .before-line-number {
+      .before {
         flex-direction: row-reverse;
         border-right: none;
       }
 
-      .check-all-cell {
-        background-color: var(--diff-border-color);
+      &.context .before {
+        border-right: calc(var(--hunk-handle-width) / 2) solid var(--diff-border-color);
+      }
+
+      &.context .after {
+        border-left: calc(var(--hunk-handle-width) / 2) solid var(--diff-border-color);
+      }
+
+      &.has-check-all-control.context .before {
+        border-right: calc(var(--hunk-handle-width-with-check-all) / 2) solid var(--diff-border-color);
+      }
+
+      &.has-check-all-control.context .after {
+        border-left: calc(var(--hunk-handle-width-with-check-all) / 2) solid var(--diff-border-color);
       }
 
       &.has-check-all-control {
@@ -88,21 +100,19 @@
       pointer-events: none;
     }
 
-    &.hunk-info{
+    &.hunk-info {
       background: var(--diff-hunk-background-color);
       color: var(--diff-hunk-text-color);
+      align-items: center;
 
-      > div {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        width: 100%;
-        align-items: center;
+      .line-number {
+        background: var(--diff-hunk-background-color);
+        border-color: var(--diff-border-color);
       }
     }
 
-    &.added .before-content,
-    &.deleted .after-content {
+    &.added .before,
+    &.deleted .after {
       background: var(--diff-empty-row-background-color);
 
       .line-number {
@@ -111,18 +121,8 @@
       }
     }
 
-    &.added .before-line-number,
-    &.deleted .after-line-number {
-      background: var(--diff-empty-row-gutter-background-color);
-
-      .line-number {
-        background: var(--diff-empty-row-gutter-background-color);
-        border-color: var(--diff-border-color);
-      }
-    }
-
-    &.context .before-content,
-    &.context .after-content {
+    &.context .before,
+    &.context .after {
       background: var(--diff-background-color);
       color: var(--diff-text-color);
 
@@ -132,38 +132,22 @@
       }
     }
 
-    &.context .before-line-number,
-    &.context .after-line-number {
-      .line-number {
-        background: var(--diff-gutter-background-color);
-        border-color: var(--diff-border-color);
-      }
-    }
-
-    .before-content,
-    .after-content {
-      width: calc(50% - var(--width-line-number) - (var(--hunk-handle-width-with-check-all)/2));
+    .before,
+    .after {
+      width: 50%;
       display: flex;
       flex-direction: row;
       position: relative;
     }
 
-    .before-line-number,
-    .after-line-number {
-      display: flex;
-    }
+    .before {
+      color: var(--diff-delete-text-color);
+      background: var(--diff-delete-background-color);
 
-
-    .before-line-number {
       .line-number {
         background: var(--diff-delete-gutter-background-color);
         border-color: var(--diff-delete-border-color);
       }
-    }
-
-    .before-content {
-      color: var(--diff-delete-text-color);
-      background: var(--diff-delete-background-color);
 
       .selectable {
         &.hoverable:hover {
@@ -182,14 +166,14 @@
       }
     }
 
-    .after-line-number {
-      background: var(--diff-add-gutter-background-color);
-      border-color: var(--diff-add-border-color);
-    }
-
-    .after-content{
+    .after {
       color: var(--diff-add-text-color);
       background: var(--diff-add-background-color);
+
+      .line-number {
+        background: var(--diff-add-gutter-background-color);
+        border-color: var(--diff-add-border-color);
+      }
 
       .selectable {
         &.hoverable:hover {

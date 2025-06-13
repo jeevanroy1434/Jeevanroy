@@ -595,7 +595,9 @@ export class SideBySideDiff extends React.Component<
     const { diff, ariaLiveMessage, isSearching } = this.state
 
     const rows = this.getCurrentDiffRows()
-    const containerClassName = classNames('side-by-side-diff-container', {
+    const containerClassName = classNames({
+      'side-by-side-diff-container': enableGranularCellDiffs(),
+      'side-by-side-diff-container-one-cell': !enableGranularCellDiffs(),
       'unified-diff': !this.props.showSideBySideDiff,
       [`selecting-${this.state.selectingTextInRow}`]:
         this.props.showSideBySideDiff &&

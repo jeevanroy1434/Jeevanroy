@@ -351,19 +351,11 @@ export class SideBySideDiffRow extends React.Component<
    *  calls.
    * */
   private renderContentRow = () => {
-    const {
-      row,
-      showSideBySideDiff,
-      beforeClassNames,
-      afterClassNames,
-      isDiffSelectable,
-    } = this.props
+    const { row, showSideBySideDiff, isDiffSelectable } = this.props
     const baseRowClasses = classNames('row', {
       'has-check-all-control':
         this.props.showDiffCheckMarks && isDiffSelectable,
     })
-    const beforeClasses = classNames('before', ...beforeClassNames)
-    const afterClasses = classNames('after', ...afterClassNames)
 
     if (
       ![
@@ -383,22 +375,20 @@ export class SideBySideDiffRow extends React.Component<
           {/* Columnheader: Group Checkbox Column */}
           {this.renderGroupCheckBoxCell()}
         </div>
-        <div role="cell">
+        <div role="cell" style={{ width: 20 }}>
           {/* Columnheader: Change Checkbox Column */}
           {this.renderUnifiedDiffSingleChangeCheckBoxCell()}
         </div>
-        <div role="cell">
+        <div role="cell" style={{ width: this.props.lineNumberWidth }}>
           {/* Columnheader: Old line number */}
           {this.renderUnifiedDiffOldLineNumberCell()}
           {this.renderWhitespaceHintPopover(DiffColumn.After)}
         </div>
-        <div role="cell">
-          {' '}
+        <div role="cell" style={{ width: this.props.lineNumberWidth }}>
           {/* Columnheader: New line number */}
           {this.renderUnifiedDiffNewLineNumberCell()}
         </div>
         <div role="cell">
-          {' '}
           {/* Columnheader: Line content */}
           {this.renderUnifiedDiffLineContentCell()}
         </div>
@@ -407,27 +397,39 @@ export class SideBySideDiffRow extends React.Component<
 
     const sideBySideDiffColumnCells = (
       <>
-        <div role="cell" className={beforeClasses}>
+        <div
+          role="cell"
+          className="before-line-number"
+          style={{ order: 2, width: this.lineGutterWidth }}
+        >
           {/* Columnheader: Old line number */}
           {this.renderSideBySideDiffOldLineNumberCell()}
           {this.renderWhitespaceHintPopover(DiffColumn.Before)}
         </div>
-        <div role="cell" className={beforeClasses}>
+        <div role="cell" className="before-content" style={{ order: 1 }}>
           {/* Columnheader: Old Line content */}
           {this.renderSideBySideDiffOldLineContentCell()}
         </div>
 
-        <div role="cell">
+        <div
+          role="cell"
+          className="check-all-cell"
+          style={{ order: 3, width: 16 }}
+        >
           {/* Columnheader: Group Checkbox Column */}
           {this.renderGroupCheckBoxCell()}
         </div>
 
-        <div role="cell" className={afterClasses}>
+        <div
+          role="cell"
+          className="after-line-number"
+          style={{ order: 4, width: this.lineGutterWidth }}
+        >
           {/* Columnheader: New line number */}
           {this.renderSideBySideDiffNewLineNumberCell()}
           {this.renderWhitespaceHintPopover(DiffColumn.After)}
         </div>
-        <div role="cell" className={afterClasses}>
+        <div role="cell" className="after-content" style={{ order: 5 }}>
           {/* Columnheader: New Line content */}
           {this.renderSideBySideDiffNewLineContentCell()}
         </div>
@@ -1059,7 +1061,6 @@ export class SideBySideDiffRow extends React.Component<
       <div
         id={wrapperID}
         className={classes}
-        style={{ width: this.lineGutterWidth }}
         onMouseDown={this.onMouseDownLineNumber}
       >
         {isSelectable &&
