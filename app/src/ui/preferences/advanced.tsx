@@ -1,9 +1,9 @@
-import * as React from "react"
-import { DialogContent } from "../dialog"
-import { Checkbox, CheckboxValue } from "../lib/checkbox"
-import { LinkButton } from "../lib/link-button"
-import { SamplesURL } from "../../lib/stats"
-import { isWindowsOpenSSHAvailable } from "../../lib/ssh/ssh"
+import * as React from 'react'
+import { DialogContent } from '../dialog'
+import { Checkbox, CheckboxValue } from '../lib/checkbox'
+import { LinkButton } from '../lib/link-button'
+import { SamplesURL } from '../../lib/stats'
+import { isWindowsOpenSSHAvailable } from '../../lib/ssh/ssh'
 
 interface IAdvancedPreferencesProps {
   readonly useWindowsOpenSSH: boolean
@@ -45,7 +45,7 @@ export class Advanced extends React.Component<
   }
 
   private onReportingOptOutChanged = (
-    event: React.FormEvent<HTMLInputElement>,
+    event: React.FormEvent<HTMLInputElement>
   ) => {
     const value = !event.currentTarget.checked
 
@@ -54,7 +54,7 @@ export class Advanced extends React.Component<
   }
 
   private onUseExternalCredentialHelperChanged = (
-    event: React.FormEvent<HTMLInputElement>,
+    event: React.FormEvent<HTMLInputElement>
   ) => {
     const value = event.currentTarget.checked
 
@@ -63,13 +63,13 @@ export class Advanced extends React.Component<
   }
 
   private onRepositoryIndicatorsEnabledChanged = (
-    event: React.FormEvent<HTMLInputElement>,
+    event: React.FormEvent<HTMLInputElement>
   ) => {
     this.props.onRepositoryIndicatorsEnabledChanged(event.currentTarget.checked)
   }
 
   private onUseWindowsOpenSSHChanged = (
-    event: React.FormEvent<HTMLInputElement>,
+    event: React.FormEvent<HTMLInputElement>
   ) => {
     this.props.onUseWindowsOpenSSHChanged(event.currentTarget.checked)
   }
@@ -77,7 +77,7 @@ export class Advanced extends React.Component<
   private reportDesktopUsageLabel() {
     return (
       <span>
-        Help GitHub Desktop improve by submitting{" "}
+        Help GitHub Desktop improve by submitting{' '}
         <LinkButton uri={SamplesURL}>usage stats</LinkButton>
       </span>
     )
@@ -126,12 +126,11 @@ export class Advanced extends React.Component<
             onChange={this.onReportingOptOutChanged}
           />
         </div>
-
         <h2>Network and credentials</h2>
         {this.renderSSHSettings()}
         <div className="advanced-section">
           <Checkbox
-            label={"Use Git Credential Manager"}
+            label={'Use Git Credential Manager'}
             value={
               this.state.useExternalCredentialHelper
                 ? CheckboxValue.On
@@ -145,10 +144,10 @@ export class Advanced extends React.Component<
             className="git-settings-description"
           >
             <p>
-              Use{" "}
+              Use{' '}
               <LinkButton uri="https://gh.io/gcm">
-                Git Credential Manager{" "}
-              </LinkButton>{" "}
+                Git Credential Manager{' '}
+              </LinkButton>{' '}
               for private repositories outside of GitHub.com. This feature is
               experimental and subject to change.
             </p>
