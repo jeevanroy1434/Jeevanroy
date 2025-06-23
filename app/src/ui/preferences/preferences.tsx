@@ -80,6 +80,7 @@ interface IPreferencesProps {
   readonly onEditGlobalGitConfig: () => void
   readonly underlineLinks: boolean
   readonly showDiffCheckMarks: boolean
+  readonly copilotCustomInstructions: string | null
 }
 
 interface IPreferencesState {
@@ -132,6 +133,7 @@ interface IPreferencesState {
   readonly underlineLinks: boolean
 
   readonly showDiffCheckMarks: boolean
+  readonly copilotCustomInstructions: string | null
 }
 
 /**
@@ -189,6 +191,7 @@ export class Preferences extends React.Component<
       isLoadingGitConfig: true,
       underlineLinks: this.props.underlineLinks,
       showDiffCheckMarks: this.props.showDiffCheckMarks,
+      copilotCustomInstructions: this.props.copilotCustomInstructions,
     }
   }
 
@@ -512,16 +515,20 @@ export class Preferences extends React.Component<
         View = (
           <Advanced
             useWindowsOpenSSH={this.state.useWindowsOpenSSH}
-            optOutOfUsageTracking={this.state.optOutOfUsageTracking}
-            useExternalCredentialHelper={this.state.useExternalCredentialHelper}
-            repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
             onUseWindowsOpenSSHChanged={this.onUseWindowsOpenSSHChanged}
+            optOutOfUsageTracking={this.state.optOutOfUsageTracking}
             onOptOutofReportingChanged={this.onOptOutofReportingChanged}
+            useExternalCredentialHelper={this.state.useExternalCredentialHelper}
             onUseExternalCredentialHelperChanged={
               this.onUseExternalCredentialHelperChanged
             }
+            repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
             onRepositoryIndicatorsEnabledChanged={
               this.onRepositoryIndicatorsEnabledChanged
+            }
+            copilotCustomInstructions={this.state.copilotCustomInstructions}
+            onCopilotCustomInstructionsChanged={
+              this.onCopilotCustomInstructionsChanged
             }
           />
         )
@@ -675,8 +682,12 @@ export class Preferences extends React.Component<
     this.setState({ underlineLinks })
   }
 
-  private onShowDiffCheckMarksChanged = (showDiffCheckMarks: boolean) => {
-    this.setState({ showDiffCheckMarks })
+  private onShowDiffCheckMarksChanged = (value: boolean) => {
+    this.setState({ showDiffCheckMarks: value })
+  }
+
+  private onCopilotCustomInstructionsChanged = (instructions: string) => {
+    this.setState({ copilotCustomInstructions: instructions === '' ? null : instructions })
   }
 
   private onSelectedTabSizeChanged = (tabSize: number) => {
@@ -825,6 +836,15 @@ export class Preferences extends React.Component<
     dispatcher.setUnderlineLinksSetting(this.state.underlineLinks)
 
     dispatcher.setDiffCheckMarksSetting(this.state.showDiffCheckMarks)
+
+    if (
+      this.state.copilotCustomInstructions !==
+      this.props.copilotCustomInstructions
+    ) {
+      this.props.dispatcher.setCopilotCustomInstructions(
+        this.state.copilotCustomInstructions
+      )
+    }
 
     this.props.onDismissed()
   }

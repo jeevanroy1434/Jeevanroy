@@ -4,6 +4,7 @@ import { Checkbox, CheckboxValue } from '../lib/checkbox'
 import { LinkButton } from '../lib/link-button'
 import { SamplesURL } from '../../lib/stats'
 import { isWindowsOpenSSHAvailable } from '../../lib/ssh/ssh'
+import { TextArea } from '../lib/text-area'
 
 interface IAdvancedPreferencesProps {
   readonly useWindowsOpenSSH: boolean
@@ -14,6 +15,8 @@ interface IAdvancedPreferencesProps {
   readonly onOptOutofReportingChanged: (checked: boolean) => void
   readonly onUseExternalCredentialHelperChanged: (checked: boolean) => void
   readonly onRepositoryIndicatorsEnabledChanged: (enabled: boolean) => void
+  readonly copilotCustomInstructions: string | null
+  readonly onCopilotCustomInstructionsChanged: (instructions: string) => void
 }
 
 interface IAdvancedPreferencesState {
@@ -74,6 +77,12 @@ export class Advanced extends React.Component<
     this.props.onUseWindowsOpenSSHChanged(event.currentTarget.checked)
   }
 
+    private onCopilotCustomInstructionsChanged = (
+    event: React.FormEvent<HTMLTextAreaElement>
+  ) => {
+    this.props.onCopilotCustomInstructionsChanged(event.currentTarget.value)
+  }
+
   private reportDesktopUsageLabel() {
     return (
       <span>
@@ -126,6 +135,22 @@ export class Advanced extends React.Component<
             onChange={this.onReportingOptOutChanged}
           />
         </div>
+
+        <div className="advanced-section">
+          <h2>GitHub Copilot</h2>
+          <p className="git-settings-description">
+            Provide custom instructions to GitHub Copilot for generating commit
+            messages. This will be included along with the diff of your staged
+            changes.
+          </p>
+          <TextArea
+            placeholder="e.g., Use the Conventional Commits specification"
+            value={this.props.copilotCustomInstructions ?? ''}
+            onChange={this.onCopilotCustomInstructionsChanged}
+            rows={6}
+          />
+        </div>
+
         <h2>Network and credentials</h2>
         {this.renderSSHSettings()}
         <div className="advanced-section">
