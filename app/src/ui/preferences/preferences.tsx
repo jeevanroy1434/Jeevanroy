@@ -5,6 +5,7 @@ import { Dispatcher } from '../dispatcher'
 import { TabBar, TabBarType } from '../tab-bar'
 import { Accounts } from './accounts'
 import { Advanced } from './advanced'
+import { Copilot } from './copilot'
 import { Git } from './git'
 import { assertNever } from '../../lib/fatal-error'
 import { Dialog, DialogFooter, DialogError } from '../dialog'
@@ -320,6 +321,12 @@ export class Preferences extends React.Component<
               <Octicon className="icon" symbol={octicons.accessibility} />
               Accessibility
             </span>
+            {this.props.accounts.some(a => a.isCopilotDesktopEnabled) && (
+              <span id={this.getTabId(PreferencesTab.Copilot)}>
+                <Octicon className="icon" symbol={octicons.copilot} />
+                Copilot
+              </span>
+            )}
           </TabBar>
 
           {this.renderActiveTab()}
@@ -352,6 +359,9 @@ export class Preferences extends React.Component<
         break
       case PreferencesTab.Advanced:
         suffix = 'advanced'
+        break
+      case PreferencesTab.Copilot:
+        suffix = 'copilot'
         break
       case PreferencesTab.Accessibility:
         suffix = 'accessibility'
@@ -515,17 +525,24 @@ export class Preferences extends React.Component<
         View = (
           <Advanced
             useWindowsOpenSSH={this.state.useWindowsOpenSSH}
-            onUseWindowsOpenSSHChanged={this.onUseWindowsOpenSSHChanged}
             optOutOfUsageTracking={this.state.optOutOfUsageTracking}
-            onOptOutofReportingChanged={this.onOptOutofReportingChanged}
             useExternalCredentialHelper={this.state.useExternalCredentialHelper}
+            repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
+            onUseWindowsOpenSSHChanged={this.onUseWindowsOpenSSHChanged}
+            onOptOutofReportingChanged={this.onOptOutofReportingChanged}
             onUseExternalCredentialHelperChanged={
               this.onUseExternalCredentialHelperChanged
             }
-            repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
             onRepositoryIndicatorsEnabledChanged={
               this.onRepositoryIndicatorsEnabledChanged
             }
+          />
+        )
+        break
+      }
+      case PreferencesTab.Copilot: {
+        View = (
+          <Copilot
             copilotCustomInstructions={this.state.copilotCustomInstructions}
             onCopilotCustomInstructionsChanged={
               this.onCopilotCustomInstructionsChanged

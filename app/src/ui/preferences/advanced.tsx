@@ -1,10 +1,9 @@
-import * as React from 'react'
-import { DialogContent } from '../dialog'
-import { Checkbox, CheckboxValue } from '../lib/checkbox'
-import { LinkButton } from '../lib/link-button'
-import { SamplesURL } from '../../lib/stats'
-import { isWindowsOpenSSHAvailable } from '../../lib/ssh/ssh'
-import { TextArea } from '../lib/text-area'
+import * as React from "react"
+import { DialogContent } from "../dialog"
+import { Checkbox, CheckboxValue } from "../lib/checkbox"
+import { LinkButton } from "../lib/link-button"
+import { SamplesURL } from "../../lib/stats"
+import { isWindowsOpenSSHAvailable } from "../../lib/ssh/ssh"
 
 interface IAdvancedPreferencesProps {
   readonly useWindowsOpenSSH: boolean
@@ -15,8 +14,6 @@ interface IAdvancedPreferencesProps {
   readonly onOptOutofReportingChanged: (checked: boolean) => void
   readonly onUseExternalCredentialHelperChanged: (checked: boolean) => void
   readonly onRepositoryIndicatorsEnabledChanged: (enabled: boolean) => void
-  readonly copilotCustomInstructions: string | null
-  readonly onCopilotCustomInstructionsChanged: (instructions: string) => void
 }
 
 interface IAdvancedPreferencesState {
@@ -48,7 +45,7 @@ export class Advanced extends React.Component<
   }
 
   private onReportingOptOutChanged = (
-    event: React.FormEvent<HTMLInputElement>
+    event: React.FormEvent<HTMLInputElement>,
   ) => {
     const value = !event.currentTarget.checked
 
@@ -57,7 +54,7 @@ export class Advanced extends React.Component<
   }
 
   private onUseExternalCredentialHelperChanged = (
-    event: React.FormEvent<HTMLInputElement>
+    event: React.FormEvent<HTMLInputElement>,
   ) => {
     const value = event.currentTarget.checked
 
@@ -66,27 +63,21 @@ export class Advanced extends React.Component<
   }
 
   private onRepositoryIndicatorsEnabledChanged = (
-    event: React.FormEvent<HTMLInputElement>
+    event: React.FormEvent<HTMLInputElement>,
   ) => {
     this.props.onRepositoryIndicatorsEnabledChanged(event.currentTarget.checked)
   }
 
   private onUseWindowsOpenSSHChanged = (
-    event: React.FormEvent<HTMLInputElement>
+    event: React.FormEvent<HTMLInputElement>,
   ) => {
     this.props.onUseWindowsOpenSSHChanged(event.currentTarget.checked)
-  }
-
-    private onCopilotCustomInstructionsChanged = (
-    event: React.FormEvent<HTMLTextAreaElement>
-  ) => {
-    this.props.onCopilotCustomInstructionsChanged(event.currentTarget.value)
   }
 
   private reportDesktopUsageLabel() {
     return (
       <span>
-        Help GitHub Desktop improve by submitting{' '}
+        Help GitHub Desktop improve by submitting{" "}
         <LinkButton uri={SamplesURL}>usage stats</LinkButton>
       </span>
     )
@@ -136,26 +127,11 @@ export class Advanced extends React.Component<
           />
         </div>
 
-        <div className="advanced-section">
-          <h2>GitHub Copilot</h2>
-          <p className="git-settings-description">
-            Provide custom instructions to GitHub Copilot for generating commit
-            messages. This will be included along with the diff of your staged
-            changes.
-          </p>
-          <TextArea
-            placeholder="e.g., Use the Conventional Commits specification"
-            value={this.props.copilotCustomInstructions ?? ''}
-            onChange={this.onCopilotCustomInstructionsChanged}
-            rows={6}
-          />
-        </div>
-
         <h2>Network and credentials</h2>
         {this.renderSSHSettings()}
         <div className="advanced-section">
           <Checkbox
-            label={'Use Git Credential Manager'}
+            label={"Use Git Credential Manager"}
             value={
               this.state.useExternalCredentialHelper
                 ? CheckboxValue.On
@@ -169,10 +145,10 @@ export class Advanced extends React.Component<
             className="git-settings-description"
           >
             <p>
-              Use{' '}
+              Use{" "}
               <LinkButton uri="https://gh.io/gcm">
-                Git Credential Manager{' '}
-              </LinkButton>{' '}
+                Git Credential Manager{" "}
+              </LinkButton>{" "}
               for private repositories outside of GitHub.com. This feature is
               experimental and subject to change.
             </p>
