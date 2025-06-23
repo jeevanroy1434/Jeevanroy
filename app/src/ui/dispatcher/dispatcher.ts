@@ -3991,6 +3991,10 @@ export class Dispatcher {
     return this.appStore._updateShowDiffCheckMarks(diffCheckMarks)
   }
 
+  public setCopilotCustomInstructions(instructions: string | null) {
+    this.appStore._setCopilotCustomInstructions(instructions)
+  }
+
   public testPruneBranches() {
     return this.appStore._testPruneBranches()
   }
