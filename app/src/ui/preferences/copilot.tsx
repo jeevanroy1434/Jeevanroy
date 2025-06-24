@@ -9,7 +9,6 @@ import {
   globalInstructionsExist,
 } from '../../lib/copilot'
 import { Repository } from '../../models/repository'
-import { LinkButton } from '../lib/link-button'
 
 interface ICopilotPreferencesProps {
   readonly repository: Repository | null
@@ -80,12 +79,7 @@ export const Copilot: React.FC<ICopilotPreferencesProps> = props => {
       <h2>GitHub Copilot</h2>
       <p className="git-settings-description">
         Provide custom instructions to GitHub Copilot for generating commit
-        messages. Workspace instructions override global instructions. Learn more
-        about configuring GitHub Copilot in GitHub Desktop{' '}
-        <LinkButton uri="https://docs.github.com/en/desktop/configuring-and-customizing-github-desktop/configuring-github-copilot-in-github-desktop">
-          here
-        </LinkButton>
-        .
+        messages. Workspace instructions override global instructions.
       </p>
 
       <InstructionsFileSetting
