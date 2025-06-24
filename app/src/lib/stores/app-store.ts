@@ -262,7 +262,7 @@ import {
   defaultUncommittedChangesStrategy,
 } from '../../models/uncommitted-changes-strategy'
 import { IStashEntry, StashedChangesLoadStates } from '../../models/stash-entry'
-import { resolveCopilotInstructions } from '../copilot'
+import { copilotManager } from '../copilot'
 import { arrayEquals } from '../equality'
 import { MenuLabelsEvent } from '../../models/menu-labels'
 import { findRemoteBranchName } from './helpers/find-branch-name'
@@ -5510,8 +5510,12 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
       const api = API.fromAccount(account)
       try {
-        const { instructions } = await resolveCopilotInstructions(repository)
-        const response = await api.getDiffChangesCommitMessage(diff, instructions)
+        const { instructions } =
+          await copilotManager.resolveCopilotInstructions(repository)
+        const response = await api.getDiffChangesCommitMessage(
+          diff,
+          instructions
+        )
 
         this._setCommitMessage(repository, {
           summary: response.title,

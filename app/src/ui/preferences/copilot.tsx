@@ -2,12 +2,7 @@ import * as React from 'react'
 import { DialogContent } from '../dialog'
 import { Button } from '../lib/button'
 import { Row } from '../lib/row'
-import {
-  ensureWorkspaceInstructions,
-  ensureGlobalInstructions,
-  workspaceInstructionsExist,
-  globalInstructionsExist,
-} from '../../lib/copilot'
+import { copilotManager } from '../../lib/copilot'
 import { Repository } from '../../models/repository'
 
 interface ICopilotPreferencesProps {
@@ -48,9 +43,11 @@ export const Copilot: React.FC<ICopilotPreferencesProps> = props => {
   const [hasGlobalInstructions, setHasGlobalInstructions] = React.useState(false)
 
   const updateFileExistsState = React.useCallback(async () => {
-    const globalExists = await globalInstructionsExist()
+    const globalExists = await copilotManager.globalInstructionsExist()
     const workspaceExists =
-      repository !== null ? await workspaceInstructionsExist(repository) : false
+      repository !== null
+        ? await copilotManager.workspaceInstructionsExist(repository)
+        : false
 
     setHasGlobalInstructions(globalExists)
     setHasWorkspaceInstructions(workspaceExists)
@@ -62,14 +59,14 @@ export const Copilot: React.FC<ICopilotPreferencesProps> = props => {
 
   const onOpenWorkspaceInstructions = React.useCallback(async () => {
     if (repository !== null) {
-      const path = await ensureWorkspaceInstructions(repository)
+      const path = await copilotManager.ensureWorkspaceInstructions(repository)
       onOpenPathInExternalEditor(path)
       updateFileExistsState()
     }
   }, [repository, onOpenPathInExternalEditor, updateFileExistsState])
 
   const onOpenGlobalInstructions = React.useCallback(async () => {
-    const path = await ensureGlobalInstructions()
+    const path = await copilotManager.ensureGlobalInstructions()
     onOpenPathInExternalEditor(path)
     updateFileExistsState()
   }, [onOpenPathInExternalEditor, updateFileExistsState])
