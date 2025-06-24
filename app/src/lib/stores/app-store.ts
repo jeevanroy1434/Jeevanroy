@@ -5510,15 +5510,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
       const api = API.fromAccount(account)
       try {
-        const state = this.getState()
-        const repositoryForInstructions =
-          state.selectedState && state.selectedState.type === SelectionType.Repository
-            ? state.selectedState.repository
-            : null
-
-        const { instructions } = await resolveCopilotInstructions(
-          repositoryForInstructions
-        )
+        const { instructions } = await resolveCopilotInstructions(repository)
         const response = await api.getDiffChangesCommitMessage(diff, instructions)
 
         this._setCommitMessage(repository, {
