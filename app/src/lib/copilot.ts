@@ -90,90 +90,17 @@ export async function globalInstructionsExist(): Promise<boolean> {
 
 export type CopilotCommitMessageInstructions = {
   readonly instructions: string | null
-  readonly source: 'workspace' | 'global' | 'default' | null
+  readonly source: 'workspace' | 'global' | null
   readonly sourcePath?: string
 }
 
-const ConventionalCommitInstructions = `Write a commit message that follows the Conventional Commits specification. The commit message should be structured as follows:
-
----
-
-feat: a new feature
-
-body: optional body
-
----
-
-fix: a bug fix
-
-body: optional body
-
----
-
-chore: changes that do not modify src or test files
-
-body: optional body
-
----
-
-docs: documentation only changes
-
-body: optional body
-
----
-
-style: changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-
-body: optional body
-
----
-
-refactor: a code change that neither fixes a bug nor adds a feature
-
-body: optional body
-
----
-
-perf: a code change that improves performance
-
-body: optional body
-
----
-
-test: adding missing tests or correcting existing tests
-
-body: optional body
-
----
-
-build: changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-
-body: optional body
-
----
-
-ci: changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-
-body: optional body
-
----
-
-revert: reverts a previous commit
-
-body: optional body
-
----
-
-`
-
-async function readInstructionsFromFile(
-  path: string
-): Promise<string | undefined> {
+async function readInstructionsFromFile(path: string): Promise<string | null> {
   if (await pathExists(path)) {
     const content = await readFile(path, 'utf8')
-    return content
+    // Don't return empty instructions.
+    return content.trim().length > 0 ? content : null
   }
-  return undefined
+  return null
 }
 
 export async function resolveCopilotInstructions(
@@ -182,7 +109,7 @@ export async function resolveCopilotInstructions(
   if (repository !== null) {
     const workspacePath = getWorkspaceInstructionsPath(repository)
     const workspaceInstructions = await readInstructionsFromFile(workspacePath)
-    if (workspaceInstructions !== undefined) {
+    if (workspaceInstructions !== null) {
       return {
         instructions: workspaceInstructions,
         source: 'workspace',
@@ -193,7 +120,7 @@ export async function resolveCopilotInstructions(
 
   const globalPath = await getGlobalInstructionsPath()
   const globalInstructions = await readInstructionsFromFile(globalPath)
-  if (globalInstructions !== undefined) {
+  if (globalInstructions !== null) {
     return {
       instructions: globalInstructions,
       source: 'global',
@@ -202,7 +129,7 @@ export async function resolveCopilotInstructions(
   }
 
   return {
-    instructions: ConventionalCommitInstructions,
-    source: 'default',
+    instructions: null,
+    source: null,
   }
 }
