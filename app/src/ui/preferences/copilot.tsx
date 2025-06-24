@@ -21,6 +21,32 @@ interface ICopilotPreferencesState {
   readonly globalInstructionsExist: boolean
 }
 
+interface IInstructionsFileSettingProps {
+  readonly title: string
+  readonly description: string
+  readonly buttonLabel: string
+  readonly fileStatus: string
+  readonly onButtonClick: () => void
+  readonly disabled?: boolean
+}
+
+const InstructionsFileSetting: React.FC<IInstructionsFileSettingProps> = props => {
+  return (
+    <Row>
+      <div className="copilot-instructions-container">
+        <h3>{props.title}</h3>
+        <p className="git-settings-description">{props.description}</p>
+        <Button onClick={props.onButtonClick} disabled={props.disabled}>
+          {props.buttonLabel}
+        </Button>
+        <p className="git-settings-description file-status">
+          {props.fileStatus}
+        </p>
+      </div>
+    </Row>
+  )
+}
+
 export class Copilot extends React.Component<
   ICopilotPreferencesProps,
   ICopilotPreferencesState
@@ -87,47 +113,38 @@ export class Copilot extends React.Component<
           .
         </p>
 
-        <Row>
-          <div className="copilot-instructions-container">
-            <h3>Workspace Instructions</h3>
-            <p className="git-settings-description">
-              Instructions specific to this repository.
-            </p>
-            <Button
-              onClick={this.onOpenWorkspaceInstructions}
-              disabled={repository === null}
-            >
-              {workspaceInstructionsExist
-                ? 'Edit instructions'
-                : 'Create instructions'}
-            </Button>
-            <p className="git-settings-description file-status">
-              {repository !== null &&
-                (workspaceInstructionsExist
-                  ? 'File exists at .github/git-commit-instructions.md'
-                  : 'File will be created at .github/git-commit-instructions.md')}
-            </p>
-          </div>
-        </Row>
+        <InstructionsFileSetting
+          title="Workspace Instructions"
+          description="Instructions specific to this repository."
+          buttonLabel={
+            workspaceInstructionsExist
+              ? 'Edit instructions'
+              : 'Create instructions'
+          }
+          fileStatus={
+            repository === null
+              ? ''
+              : workspaceInstructionsExist
+              ? 'File exists at .github/git-commit-instructions.md'
+              : 'File will be created at .github/git-commit-instructions.md'
+          }
+          onButtonClick={this.onOpenWorkspaceInstructions}
+          disabled={repository === null}
+        />
 
-        <Row>
-          <div className="copilot-instructions-container">
-            <h3>Global Instructions</h3>
-            <p className="git-settings-description">
-              Instructions that apply to all repositories.
-            </p>
-            <Button onClick={this.onOpenGlobalInstructions}>
-              {globalInstructionsExist
-                ? 'Edit instructions'
-                : 'Create instructions'}
-            </Button>
-            <p className="git-settings-description file-status">
-              {globalInstructionsExist
-                ? 'Global instructions file exists.'
-                : 'Global instructions file does not exist.'}
-            </p>
-          </div>
-        </Row>
+        <InstructionsFileSetting
+          title="Global Instructions"
+          description="Instructions that apply to all repositories."
+          buttonLabel={
+            globalInstructionsExist ? 'Edit instructions' : 'Create instructions'
+          }
+          fileStatus={
+            globalInstructionsExist
+              ? 'Global instructions file exists.'
+              : 'Global instructions file does not exist.'
+          }
+          onButtonClick={this.onOpenGlobalInstructions}
+        />
       </DialogContent>
     )
   }
