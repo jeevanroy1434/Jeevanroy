@@ -3991,7 +3991,6 @@ export class Dispatcher {
     return this.appStore._updateShowDiffCheckMarks(diffCheckMarks)
   }
 
-
   public testPruneBranches() {
     return this.appStore._testPruneBranches()
   }
