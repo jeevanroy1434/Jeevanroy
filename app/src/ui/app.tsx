@@ -1561,7 +1561,7 @@ export class App extends React.Component<IAppProps, IAppState> {
             initialSelectedTab={popup.initialSelectedTab}
             dispatcher={this.props.dispatcher}
             accounts={this.state.accounts}
-            copilotCustomInstructions={this.state.copilotCustomInstructions}
+
             confirmRepositoryRemoval={
               this.state.askForConfirmationOnRepositoryRemoval
             }
