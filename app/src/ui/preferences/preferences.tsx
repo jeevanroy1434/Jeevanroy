@@ -190,7 +190,6 @@ export class Preferences extends React.Component<
       isLoadingGitConfig: true,
       underlineLinks: this.props.underlineLinks,
       showDiffCheckMarks: this.props.showDiffCheckMarks,
-
     }
   }
 
@@ -693,8 +692,8 @@ export class Preferences extends React.Component<
     this.setState({ underlineLinks })
   }
 
-  private onShowDiffCheckMarksChanged = (value: boolean) => {
-    this.setState({ showDiffCheckMarks: value })
+  private onShowDiffCheckMarksChanged = (showDiffCheckMarks: boolean) => {
+    this.setState({ showDiffCheckMarks })
   }
 
   private onSelectedTabSizeChanged = (tabSize: number) => {
@@ -843,8 +842,6 @@ export class Preferences extends React.Component<
     dispatcher.setUnderlineLinksSetting(this.state.underlineLinks)
 
     dispatcher.setDiffCheckMarksSetting(this.state.showDiffCheckMarks)
-
-
 
     this.props.onDismissed()
   }
