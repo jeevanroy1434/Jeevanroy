@@ -376,7 +376,6 @@ export interface IAppState {
   readonly updateState: IUpdateState
 
   readonly commitMessageGenerationDisclaimerLastSeen: number | null
-  readonly copilotCustomInstructions: string | null
 
   readonly commitMessageGenerationButtonClicked: boolean
 
