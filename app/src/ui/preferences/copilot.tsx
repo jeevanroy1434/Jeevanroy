@@ -16,11 +16,6 @@ interface ICopilotPreferencesProps {
   readonly onOpenPathInExternalEditor: (path: string) => void
 }
 
-interface ICopilotPreferencesState {
-  readonly workspaceInstructionsExist: boolean
-  readonly globalInstructionsExist: boolean
-}
-
 interface IInstructionsFileSettingProps {
   readonly title: string
   readonly description: string
@@ -47,105 +42,82 @@ const InstructionsFileSetting: React.FC<IInstructionsFileSettingProps> = props =
   )
 }
 
-export class Copilot extends React.Component<
-  ICopilotPreferencesProps,
-  ICopilotPreferencesState
-> {
-  public constructor(props: ICopilotPreferencesProps) {
-    super(props)
-    this.state = {
-      workspaceInstructionsExist: false,
-      globalInstructionsExist: false,
-    }
-  }
+export const Copilot: React.FC<ICopilotPreferencesProps> = props => {
+  const { repository, onOpenPathInExternalEditor } = props
+  const [hasWorkspaceInstructions, setHasWorkspaceInstructions] =
+    React.useState(false)
+  const [hasGlobalInstructions, setHasGlobalInstructions] = React.useState(false)
 
-  public componentDidMount() {
-    this.updateFileExistsState()
-  }
-
-  public componentDidUpdate(prevProps: ICopilotPreferencesProps) {
-    if (this.props.repository?.id !== prevProps.repository?.id) {
-      this.updateFileExistsState()
-    }
-  }
-
-  private updateFileExistsState = async () => {
+  const updateFileExistsState = React.useCallback(async () => {
     const globalExists = await globalInstructionsExist()
     const workspaceExists =
-      this.props.repository !== null
-        ? await workspaceInstructionsExist(this.props.repository)
-        : false
+      repository !== null ? await workspaceInstructionsExist(repository) : false
 
-    this.setState({
-      globalInstructionsExist: globalExists,
-      workspaceInstructionsExist: workspaceExists,
-    })
-  }
+    setHasGlobalInstructions(globalExists)
+    setHasWorkspaceInstructions(workspaceExists)
+  }, [repository])
 
-  private onOpenWorkspaceInstructions = async () => {
-    if (this.props.repository !== null) {
-      const path = await ensureWorkspaceInstructions(this.props.repository)
-      this.props.onOpenPathInExternalEditor(path)
-      this.updateFileExistsState()
+  React.useEffect(() => {
+    updateFileExistsState()
+  }, [updateFileExistsState])
+
+  const onOpenWorkspaceInstructions = React.useCallback(async () => {
+    if (repository !== null) {
+      const path = await ensureWorkspaceInstructions(repository)
+      onOpenPathInExternalEditor(path)
+      updateFileExistsState()
     }
-  }
+  }, [repository, onOpenPathInExternalEditor, updateFileExistsState])
 
-  private onOpenGlobalInstructions = async () => {
+  const onOpenGlobalInstructions = React.useCallback(async () => {
     const path = await ensureGlobalInstructions()
-    this.props.onOpenPathInExternalEditor(path)
-    this.updateFileExistsState()
-  }
+    onOpenPathInExternalEditor(path)
+    updateFileExistsState()
+  }, [onOpenPathInExternalEditor, updateFileExistsState])
 
-  public render() {
-    const { repository } = this.props
-    const { workspaceInstructionsExist, globalInstructionsExist } = this.state
+  return (
+    <DialogContent>
+      <h2>GitHub Copilot</h2>
+      <p className="git-settings-description">
+        Provide custom instructions to GitHub Copilot for generating commit
+        messages. Workspace instructions override global instructions. Learn more
+        about configuring GitHub Copilot in GitHub Desktop{' '}
+        <LinkButton uri="https://docs.github.com/en/desktop/configuring-and-customizing-github-desktop/configuring-github-copilot-in-github-desktop">
+          here
+        </LinkButton>
+        .
+      </p>
 
-    return (
-      <DialogContent>
-        <h2>GitHub Copilot</h2>
-        <p className="git-settings-description">
-          Provide custom instructions to GitHub Copilot for generating commit
-          messages. Workspace instructions override global instructions. Learn
-          more about configuring GitHub Copilot in GitHub Desktop{' '}
-          <LinkButton uri="https://docs.github.com/en/desktop/configuring-and-customizing-github-desktop/configuring-github-copilot-in-github-desktop">
-            here
-          </LinkButton>
-          .
-        </p>
+      <InstructionsFileSetting
+        title="Workspace Instructions"
+        description="Instructions specific to this repository."
+        buttonLabel={
+          hasWorkspaceInstructions ? 'Edit instructions' : 'Create instructions'
+        }
+        fileStatus={
+          repository === null
+            ? ''
+            : hasWorkspaceInstructions
+            ? 'File exists at .github/git-commit-instructions.md'
+            : 'File will be created at .github/git-commit-instructions.md'
+        }
+        onButtonClick={onOpenWorkspaceInstructions}
+        disabled={repository === null}
+      />
 
-        <InstructionsFileSetting
-          title="Workspace Instructions"
-          description="Instructions specific to this repository."
-          buttonLabel={
-            workspaceInstructionsExist
-              ? 'Edit instructions'
-              : 'Create instructions'
-          }
-          fileStatus={
-            repository === null
-              ? ''
-              : workspaceInstructionsExist
-              ? 'File exists at .github/git-commit-instructions.md'
-              : 'File will be created at .github/git-commit-instructions.md'
-          }
-          onButtonClick={this.onOpenWorkspaceInstructions}
-          disabled={repository === null}
-        />
-
-        <InstructionsFileSetting
-          title="Global Instructions"
-          description="Instructions that apply to all repositories."
-          buttonLabel={
-            globalInstructionsExist ? 'Edit instructions' : 'Create instructions'
-          }
-          fileStatus={
-            globalInstructionsExist
-              ? 'Global instructions file exists.'
-              : 'Global instructions file does not exist.'
-          }
-          onButtonClick={this.onOpenGlobalInstructions}
-        />
-      </DialogContent>
-    )
-  }
+      <InstructionsFileSetting
+        title="Global Instructions"
+        description="Instructions that apply to all repositories."
+        buttonLabel={
+          hasGlobalInstructions ? 'Edit instructions' : 'Create instructions'
+        }
+        fileStatus={
+          hasGlobalInstructions
+            ? 'Global instructions file exists.'
+            : 'Global instructions file does not exist.'
+        }
+        onButtonClick={onOpenGlobalInstructions}
+      />
+    </DialogContent>
+  )
 }

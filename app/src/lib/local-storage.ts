@@ -49,14 +49,6 @@ export function setBoolean(key: string, value: boolean) {
   localStorage.setItem(key, value ? '1' : '0')
 }
 
-export function getString(key: string): string | null {
-  return localStorage.getItem(key)
-}
-
-export function setString(key: string, value: string) {
-  localStorage.setItem(key, value)
-}
-
 /**
  * Retrieve a integer number value from a given local storage entry if found, or the
  * provided `defaultValue` if the key doesn't exist or if the value cannot be
