@@ -7,7 +7,13 @@ import { ManualConflictResolution } from '../../models/manual-conflict-resolutio
 import { stageManualConflictResolution } from './stage'
 import { GitError as DugiteError } from 'dugite'
 import { trampolineUIHelper } from '../trampoline/trampoline-ui-helper'
-import { setGPGPassphrase } from '../gpg/gpg-passphrase'
+import {
+  setGPGPassphrase,
+  setMostRecentGPGPassphrase,
+} from '../gpg/gpg-passphrase'
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import * as os from 'os'
 
 /**
  * @param repository repository to execute merge in
@@ -66,18 +72,55 @@ export async function createCommit(
           await setGPGPassphrase('manual-gpg-prompt', keyId, passphrase)
         }
 
-        // Retry the commit operation
-        // Note: The passphrase will be available through our storage mechanism
-        // for subsequent GPG operations in the same session
-        const result = await git(
-          ['commit', ...args],
-          repository.path,
-          'createCommit',
-          {
-            stdin: message,
-          }
+        // Also store for immediate use with a temporary token
+        await setGPGPassphrase('temp-retry-token', keyId, passphrase)
+        await setMostRecentGPGPassphrase('temp-retry-token', keyId)
+
+        // Retry the commit operation by creating a temporary passphrase file
+        // and a temporary GPG wrapper script
+        const tempPassphraseFile = path.join(
+          os.tmpdir(),
+          `gpg-passphrase-${Date.now()}.tmp`
         )
-        return parseCommitSHA(result)
+        const tempGPGWrapper = path.join(
+          os.tmpdir(),
+          `gpg-wrapper-${Date.now()}.bat`
+        )
+
+        try {
+          // Write passphrase to temporary file
+          await fs.writeFile(tempPassphraseFile, passphrase, { mode: 0o600 })
+
+          // Create a temporary GPG wrapper batch file
+          const wrapperContent = `@echo off\n"C:\\Program Files\\Git\\usr\\bin\\gpg.exe" --pinentry-mode loopback --passphrase-file "${tempPassphraseFile}" %*`
+          await fs.writeFile(tempGPGWrapper, wrapperContent)
+
+          const result = await git(
+            ['-c', `gpg.program=${tempGPGWrapper}`, 'commit', ...args],
+            repository.path,
+            'createCommit',
+            {
+              stdin: message,
+            }
+          )
+
+          return parseCommitSHA(result)
+        } finally {
+          // Clean up temporary files
+          try {
+            await fs.access(tempPassphraseFile)
+            await fs.unlink(tempPassphraseFile)
+          } catch (e) {
+            // Silently ignore cleanup errors
+          }
+
+          try {
+            await fs.access(tempGPGWrapper)
+            await fs.unlink(tempGPGWrapper)
+          } catch (e) {
+            // Silently ignore cleanup errors
+          }
+        }
       }
     }
 

@@ -179,7 +179,14 @@ async function handleGPGPassphrase(
     return undefined
   }
 
-  const storedPassphrase = await getGPGPassphrase(keyId)
+  // First check for a passphrase from temp retry token (used during commit retry)
+  let storedPassphrase = await getGPGPassphrase('temp-retry-token', keyId)
+
+  // If no temp passphrase, check regular storage
+  if (storedPassphrase === null) {
+    storedPassphrase = await getGPGPassphrase(keyId)
+  }
+
   if (storedPassphrase !== null) {
     // Keep this stored passphrase around in case it's not valid and we need to
     // delete it if the git operation fails to authenticate.

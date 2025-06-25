@@ -127,6 +127,12 @@ export async function withTrampolineEnv<T>(
         // Configure GPG to use our askpass trampoline for passphrase prompts
         // Setting GPG_TTY to empty forces GPG to use alternative prompt methods
         GPG_TTY: '',
+        // Force GPG to use ASKPASS instead of pinentry
+        GPG_ASKPASS: getDesktopAskpassTrampolinePath(),
+        // Disable pinentry entirely - GPG will fall back to askpass
+        PINENTRY_DISABLE: '1',
+        // Set GPG to use our trampoline as the pinentry program
+        PINENTRY_USER_DATA: token,
         // This warrants some explanation. We're configuring the
         // credential helper using environment variables rather than
         // arguments (i.e. -c credential.helper=) because we want commands
@@ -143,7 +149,7 @@ export async function withTrampolineEnv<T>(
         //
         // See https://github.com/desktop/desktop/issues/18945
         // See https://github.com/git/git/blob/ed155187b429a/config.c#L664
-        GIT_CONFIG_PARAMETERS: `${gitEnvConfigPrefix}'credential.helper=' 'credential.helper=desktop'`,
+        GIT_CONFIG_PARAMETERS: `${gitEnvConfigPrefix}'credential.helper=' 'credential.helper=desktop' 'gpg.program=gpg --pinentry-mode loopback --passphrase-fd 0'`,
 
         GIT_USER_AGENT: await GitUserAgent(),
         ...sshEnv,

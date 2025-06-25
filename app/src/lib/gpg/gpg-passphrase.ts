@@ -14,10 +14,26 @@ async function getHashForGPGKey(keyId: string) {
 }
 
 /** Retrieves the passphrase for the GPG key with the given ID. */
-export async function getGPGPassphrase(keyId: string) {
+export async function getGPGPassphrase(keyId: string): Promise<string | null>
+export async function getGPGPassphrase(
+  token: string,
+  keyId: string
+): Promise<string | null>
+export async function getGPGPassphrase(
+  keyIdOrToken: string,
+  keyId?: string
+): Promise<string | null> {
   try {
-    const keyHash = await getHashForGPGKey(keyId)
-    return TokenStore.getItem(GPGPassphraseTokenStoreKey, keyHash)
+    if (keyId !== undefined) {
+      // Two-parameter form: getGPGPassphrase(token, keyId)
+      const tokenKeyCombo = `${keyIdOrToken}:${keyId}`
+      const keyHash = await getHashForGPGKey(tokenKeyCombo)
+      return TokenStore.getItem(GPGPassphraseTokenStoreKey, keyHash)
+    } else {
+      // Single-parameter form: getGPGPassphrase(keyId)
+      const keyHash = await getHashForGPGKey(keyIdOrToken)
+      return TokenStore.getItem(GPGPassphraseTokenStoreKey, keyHash)
+    }
   } catch (e) {
     log.error('Could not retrieve passphrase for GPG key:', e)
     return null
@@ -39,7 +55,11 @@ export async function setGPGPassphrase(
   passphrase: string
 ) {
   try {
-    const keyHash = await getHashForGPGKey(keyId)
+    // For special tokens like 'temp-retry-token', include the token in the key
+    const storageKey = operationGUID.startsWith('temp-')
+      ? `${operationGUID}:${keyId}`
+      : keyId
+    const keyHash = await getHashForGPGKey(storageKey)
 
     await setSSHCredential(
       operationGUID,
