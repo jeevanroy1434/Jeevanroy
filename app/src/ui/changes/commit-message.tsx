@@ -14,6 +14,7 @@ import {
 import { Repository } from '../../models/repository'
 import { Button } from '../lib/button'
 import { Loading } from '../lib/loading'
+import { Checkbox, CheckboxValue } from '../lib/checkbox'
 import { AuthorInput } from '../lib/author-input/author-input'
 import { FocusContainer } from '../lib/focus-container'
 import { Octicon, OcticonSymbolVariant } from '../octicons'
@@ -219,6 +220,7 @@ interface ICommitMessageState {
   readonly repoRuleCommitMessageFailures: RepoRulesMetadataFailures
   readonly repoRuleCommitAuthorFailures: RepoRulesMetadataFailures
   readonly repoRuleBranchNameFailures: RepoRulesMetadataFailures
+  readonly skipPrecommitHooks: boolean
 }
 
 function findCommitMessageAutoCompleteProvider(
@@ -275,6 +277,7 @@ export class CommitMessage extends React.Component<
       repoRuleCommitMessageFailures: new RepoRulesMetadataFailures(),
       repoRuleCommitAuthorFailures: new RepoRulesMetadataFailures(),
       repoRuleBranchNameFailures: new RepoRulesMetadataFailures(),
+      skipPrecommitHooks: false,
     }
   }
 
@@ -577,6 +580,7 @@ export class CommitMessage extends React.Component<
       amend: this.props.commitToAmend !== null,
       messageGeneratedByCopilot:
         this.state.commitMessage.generatedByCopilot ?? false,
+      skipPrecommitHooks: this.state.skipPrecommitHooks,
     }
 
     if (
@@ -1467,6 +1471,10 @@ export class CommitMessage extends React.Component<
     )
   }
 
+  private onSkipPrecommitHooksCheckboxChanged = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({ skipPrecommitHooks: event.currentTarget.checked })
+  }
+
   public render() {
     const className = classNames('commit-message-component', {
       'with-action-bar': this.isActionBarEnabled,
@@ -1573,6 +1581,15 @@ export class CommitMessage extends React.Component<
           />
           {this.renderActionBar()}
         </FocusContainer>
+
+        <div className="commit-options">
+          <Checkbox
+            label="Skip pre-commit hooks"
+            value={this.state.skipPrecommitHooks ? CheckboxValue.On : CheckboxValue.Off}
+            onChange={this.onSkipPrecommitHooksCheckboxChanged}
+            disabled={isCommitting === true || isGeneratingCommitMessage === true}
+          />
+        </div>
 
         {this.renderCoAuthorInput()}
 
