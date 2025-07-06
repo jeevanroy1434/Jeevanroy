@@ -452,8 +452,11 @@ export const underlineLinksDefault = true
 export const showDiffCheckMarksDefault = true
 export const showDiffCheckMarksKey = 'diff-check-marks-visible'
 
-export const commitMessageGenerationDisclaimerLastSeenKey =
+const commitMessageGenerationDisclaimerLastSeenKey =
   'commit-message-generation-disclaimer-last-seen'
+
+const commitMessageGenerationButtonClickedKey =
+  'commit-message-generation-button-clicked'
 
 export const showChangesFilterKey = 'show-changes-filter'
 export const showChangesFilterDefault = true
@@ -609,6 +612,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private underlineLinks: boolean = underlineLinksDefault
 
   private commitMessageGenerationDisclaimerLastSeen: number | null = null
+  private commitMessageGenerationButtonClicked: boolean = false
 
   private showChangesFilter: boolean = false
 
@@ -1106,6 +1110,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
       updateState: updateStore.state,
       commitMessageGenerationDisclaimerLastSeen:
         this.commitMessageGenerationDisclaimerLastSeen,
+      commitMessageGenerationButtonClicked:
+        this.commitMessageGenerationButtonClicked,
       showChangesFilter: this.showChangesFilter,
     }
   }
@@ -2336,6 +2342,11 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.commitMessageGenerationDisclaimerLastSeen =
       getNumber(commitMessageGenerationDisclaimerLastSeenKey) ?? null
 
+    this.commitMessageGenerationButtonClicked = getBoolean(
+      commitMessageGenerationButtonClickedKey,
+      false
+    )
+
     this.showChangesFilter = getBoolean(
       showChangesFilterKey,
       showChangesFilterDefault
@@ -2363,13 +2374,22 @@ export class AppStore extends TypedBaseStore<IAppState> {
     // Start with all the available width
     let available = window.innerWidth
 
+    // // The tutorial currently has a fixed-width sidebar which we have to account
+    // // for so it makes sense to limit the width of the file list in order to
+    // // give the tutorial enough space to show its content.
+    const tutorialMinWidth =
+      this.currentOnboardingTutorialStep === TutorialStep.NotApplicable
+        ? 0
+        : 650
+
     // Working our way from left to right (i.e. giving priority to the leftmost
     // pane when we need to constrain the width)
     //
     // 220 was determined as the minimum value since it is the smallest width
     // that will still fit the placeholder text in the branch selector textbox
     // of the history tab
-    const maxSidebarWidth = available - toolbarButtonsMinWidth
+    const maxSidebarWidth =
+      available - Math.max(toolbarButtonsMinWidth, tutorialMinWidth)
     this.sidebarWidth = constrain(this.sidebarWidth, 220, maxSidebarWidth)
 
     // Now calculate the width we have left to distribute for the other panes
@@ -5439,6 +5459,14 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.emitUpdate()
   }
 
+  public _setCommitMessageGenerationButtonClicked(): void {
+    if (!this.commitMessageGenerationButtonClicked) {
+      this.commitMessageGenerationButtonClicked = true
+      setBoolean(commitMessageGenerationButtonClickedKey, true)
+      this.emitUpdate()
+    }
+  }
+
   public async _generateCommitMessage(
     repository: Repository,
     filesSelected: ReadonlyArray<WorkingDirectoryFileChange>
@@ -5448,6 +5476,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     if (!account) {
       return false
     }
+
+    this._setCommitMessageGenerationButtonClicked()
 
     if (
       !this.commitMessageGenerationDisclaimerLastSeen ||
@@ -5463,7 +5493,16 @@ export class AppStore extends TypedBaseStore<IAppState> {
     }
 
     return this.withIsGeneratingCommitMessage(repository, async () => {
-      const diff = await getFilesDiffText(repository, filesSelected)
+      // If user is amending a commit, we want to use the commit
+      // to amend as the base for the commit message generation.
+      const commitToAmend =
+        this.repositoryStateCache.get(repository)?.commitToAmend?.sha ??
+        undefined
+      const diff = await getFilesDiffText(
+        repository,
+        filesSelected,
+        commitToAmend ? `${commitToAmend}^` : undefined
+      )
       if (!diff) {
         return false
       }

@@ -107,6 +107,7 @@ interface ICommitMessageProps {
   readonly autocompletionProviders: ReadonlyArray<IAutocompletionProvider<any>>
   readonly isCommitting?: boolean
   readonly isGeneratingCommitMessage?: boolean
+  readonly shouldShowGenerateCommitMessageCallOut?: boolean
   readonly commitToAmend: Commit | null
   readonly placeholder: string
   readonly prepopulateCommitSummary: boolean
@@ -870,18 +871,29 @@ export class CommitMessage extends React.Component<
   }
 
   private renderCopilotButton() {
+    const {
+      accounts,
+      onGenerateCommitMessage,
+      filesSelected,
+      isCommitting,
+      isGeneratingCommitMessage,
+      commitToAmend,
+      shouldShowGenerateCommitMessageCallOut,
+    } = this.props
+
     if (
-      !this.props.accounts.some(enableCommitMessageGeneration) ||
-      this.props.onGenerateCommitMessage === undefined
+      !accounts.some(enableCommitMessageGeneration) ||
+      onGenerateCommitMessage === undefined
     ) {
       return null
     }
 
-    const noFilesSelected = this.props.filesSelected.length === 0
+    const noFilesSelected = filesSelected.length === 0
+    const noChangesAvailable = !commitToAmend && noFilesSelected
 
     const ariaLabel =
       'Generate commit message with Copilot' +
-      (noFilesSelected
+      (noChangesAvailable
         ? '. Files must be selected to generate a commit message.'
         : '')
 
@@ -894,12 +906,15 @@ export class CommitMessage extends React.Component<
           ariaLabel={ariaLabel}
           tooltip={ariaLabel}
           disabled={
-            this.props.isCommitting === true ||
-            this.props.isGeneratingCommitMessage ||
-            noFilesSelected
+            isCommitting === true ||
+            isGeneratingCommitMessage ||
+            noChangesAvailable
           }
         >
           <Octicon symbol={octicons.copilot} />
+          {shouldShowGenerateCommitMessageCallOut && (
+            <span className="call-to-action-bubble">New</span>
+          )}
         </Button>
       </>
     )
@@ -967,6 +982,16 @@ export class CommitMessage extends React.Component<
   }
 
   private onFocusContainerClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented) {
+      // Our description text area is styled to look like it's a big textarea
+      // with buttons towards the bottom but it's not. It's a textarea inside of
+      // a focus container (div) which is styled to look like a text area.
+      // To maintain that illusion we need to focus the description text area
+      // when the user clicks on the focus container but we don't want to
+      // do that if the user clicked on one of the buttons in the action bar
+      return
+    }
+
     if (this.descriptionComponent) {
       this.descriptionComponent.focus()
     }

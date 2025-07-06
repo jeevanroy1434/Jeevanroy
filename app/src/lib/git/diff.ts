@@ -36,6 +36,7 @@ import { createLogParser } from './git-delimiter-parser'
 import { enableImagePreviewsForDDSFiles } from '../feature-flag'
 import { unstageAll } from './reset'
 import { stageFiles } from './update-index'
+import { isAbsolute } from 'path'
 
 /**
  * V8 has a limit on the size of string it can create (~256MB), and unless we want to
@@ -128,14 +129,14 @@ export async function getCommitDiff(
     '-z',
     '--no-color',
     '--',
-    file.path,
+    ensureRelativePath(file.path),
   ]
 
   if (
     file.status.kind === AppFileStatusKind.Renamed ||
     file.status.kind === AppFileStatusKind.Copied
   ) {
-    args.push(file.status.oldPath)
+    args.push(ensureRelativePath(file.status.oldPath))
   }
 
   const { stdout } = await git(args, repository.path, 'getCommitDiff', {
@@ -167,14 +168,14 @@ export async function getBranchMergeBaseDiff(
     '-z',
     '--no-color',
     '--',
-    file.path,
+    ensureRelativePath(file.path),
   ]
 
   if (
     file.status.kind === AppFileStatusKind.Renamed ||
     file.status.kind === AppFileStatusKind.Copied
   ) {
-    args.push(file.status.oldPath)
+    args.push(ensureRelativePath(file.status.oldPath))
   }
 
   const result = await git(args, repository.path, 'getBranchMergeBaseDiff', {
@@ -212,14 +213,14 @@ export async function getCommitRangeDiff(
     '-z',
     '--no-color',
     '--',
-    file.path,
+    ensureRelativePath(file.path),
   ]
 
   if (
     file.status.kind === AppFileStatusKind.Renamed ||
     file.status.kind === AppFileStatusKind.Copied
   ) {
-    args.push(file.status.oldPath)
+    args.push(ensureRelativePath(file.status.oldPath))
   }
 
   const result = await git(args, repository.path, 'getCommitsDiff', {
@@ -382,9 +383,9 @@ export async function getWorkingDirectoryDiff(
     // already staged to the renamed file which differs from our other diffs.
     // The closest I got to that was running hash-object and then using
     // git diff <blob> <blob> but that seems a bit excessive.
-    args.push('--', file.path)
+    args.push('--', ensureRelativePath(file.path))
   } else {
-    args.push('HEAD', '--', file.path)
+    args.push('HEAD', '--', ensureRelativePath(file.path))
   }
 
   const { stdout, stderr } = await git(
@@ -403,10 +404,20 @@ export async function getWorkingDirectoryDiff(
  * The files will be compared against HEAD if it's tracked, if not it'll be
  * compared to an empty file meaning that all content in the file will be
  * treated as additions.
+ *
+ * @param repository The repository to get the diff for
+ * @param files The list of files to get the diff for
+ * @param commitish The commitish to compare against, if not provided it will
+ *                  default to HEAD. Mainly used to get a diff that includes
+ *                  both staged changes and the changes in a commit. For example,
+ *                  when the user is amending a commit and wants to generate
+ *                  a commit message based on both the new changes and the
+ *                  changes in the commit.
  */
 export async function getFilesDiffText(
   repository: Repository,
-  files: ReadonlyArray<WorkingDirectoryFileChange>
+  files: ReadonlyArray<WorkingDirectoryFileChange>,
+  commitish?: string
 ): Promise<string> {
   // Clear the staging area, our diffs reflect the difference between the
   // working directory and the last commit (if any) so our commits should
@@ -423,6 +434,7 @@ export async function getFilesDiffText(
     '--patch-with-raw',
     '--no-color',
     '--staged',
+    ...(commitish ? [commitish] : []),
   ]
   const successExitCodes = new Set([0])
 
@@ -831,3 +843,10 @@ async function getFilesUsingBinaryMergeDriver(
     .filter(x => x.attr === 'merge' && x.value === 'binary')
     .map(x => x.path)
 }
+
+// Prefix absolute path with `:(top,literal)` to ensure that git treats it as a
+// literal path. This is important for paths that appear to be absolute paths on
+// some platforms and not others. See
+// https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-top
+const ensureRelativePath = (path: string) =>
+  isAbsolute(path) ? `:(top,literal)${path}` : path

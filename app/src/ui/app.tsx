@@ -195,6 +195,7 @@ import { GenerateCommitMessageDisclaimer } from './generate-commit-message/gener
 import { IAPICreatePushProtectionBypassResponse } from '../lib/api'
 import {
   BypassPushProtectionDialog,
+  BypassReason,
   BypassReasonType,
 } from './secret-scanning/bypass-push-protection-dialog'
 
@@ -1306,6 +1307,16 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     this.openInShell(repository)
+  }
+
+  /**
+   * Gets a label string for the currently selected external editor, or
+   * `undefined` if the user has selected a custom editor.
+   */
+  private get externalEditorLabel() {
+    return this.state.useCustomEditor
+      ? undefined
+      : this.state.selectedExternalEditor ?? undefined
   }
 
   private openCurrentRepositoryInExternalEditor() {
@@ -2519,6 +2530,10 @@ export class App extends React.Component<IAppProps, IAppState> {
           <PushProtectionErrorDialog
             key="push-protection-error"
             secrets={popup.secrets}
+            onDelegatedBypassLinkClick={this.onSecretDelegatedBypassLinkClick}
+            onRemediationInstructionsLinkClick={
+              this.onSecretRemediationInstructionsLinkClick
+            }
             bypassPushProtection={this.openBypassPushProtection}
             onDismissed={onPopupDismissedFn}
           />
@@ -2562,6 +2577,18 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
+  private onSecretDelegatedBypassLinkClick = () => {
+    this.props.dispatcher.incrementMetric(
+      'secretsDetectedOnPushDelegatedBypassLinkClickedCount'
+    )
+  }
+
+  private onSecretRemediationInstructionsLinkClick = () => {
+    this.props.dispatcher.incrementMetric(
+      'secretRemediationInstructionsLinkClickedCount'
+    )
+  }
+
   private onDismissBypassPushProtection = (
     popup: string,
     popupDismiss: () => void
@@ -2600,6 +2627,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           ) => {
             this.bypassPushProtection(secret, reason)
               .then(response => {
+                this.recordSecretBypassStats(reason)
                 resolve(response)
               })
               .catch(error => {
@@ -2616,6 +2644,29 @@ export class App extends React.Component<IAppProps, IAppState> {
         })
       }
     )
+  }
+
+  private recordSecretBypassStats = (reason: BypassReasonType) => {
+    this.props.dispatcher.incrementMetric('secretsDetectedOnPushBypassedCount')
+    switch (reason) {
+      case BypassReason.FalsePositive:
+        this.props.dispatcher.incrementMetric(
+          'secretsDetectedOnPushBypassedAsFalsePositiveCount'
+        )
+        break
+      case BypassReason.UsedInTests:
+        this.props.dispatcher.incrementMetric(
+          'secretsDetectedOnPushBypassedAsUsedInTestCount'
+        )
+        break
+      case BypassReason.WillFixLater:
+        this.props.dispatcher.incrementMetric(
+          'secretsDetectedOnPushBypassedAsWillFixLaterCount'
+        )
+        break
+      default:
+        return assertNever(reason, `Unknown Bypass reason: ${reason}`)
+    }
   }
 
   private bypassPushProtection = (
@@ -2814,9 +2865,7 @@ export class App extends React.Component<IAppProps, IAppState> {
     const selectedRepository = this.state.selectedState
       ? this.state.selectedState.repository
       : null
-    const externalEditorLabel = this.state.selectedExternalEditor
-      ? this.state.selectedExternalEditor
-      : undefined
+
     const { useCustomShell, selectedShell } = this.state
     const filterText = this.state.repositoryFilterText
     return (
@@ -2836,7 +2885,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         onOpenInShell={this.openInShell}
         onShowRepository={this.showRepository}
         onOpenInExternalEditor={this.openInExternalEditor}
-        externalEditorLabel={externalEditorLabel}
+        externalEditorLabel={this.externalEditorLabel}
         shellLabel={useCustomShell ? undefined : selectedShell}
         dispatcher={this.props.dispatcher}
       />
@@ -2986,8 +3035,6 @@ export class App extends React.Component<IAppProps, IAppState> {
       return
     }
 
-    const externalEditorLabel = this.state.selectedExternalEditor ?? undefined
-
     const onChangeRepositoryAlias = (repository: Repository) => {
       this.props.dispatcher.showPopup({
         type: PopupType.ChangeRepositoryAlias,
@@ -3006,7 +3053,7 @@ export class App extends React.Component<IAppProps, IAppState> {
       onOpenInExternalEditor: this.openInExternalEditor,
       askForConfirmationOnRemoveRepository:
         this.state.askForConfirmationOnRepositoryRemoval,
-      externalEditorLabel: externalEditorLabel,
+      externalEditorLabel: this.externalEditorLabel,
       onChangeRepositoryAlias: onChangeRepositoryAlias,
       onRemoveRepositoryAlias: onRemoveRepositoryAlias,
       onViewOnGitHub: this.viewOnGitHub,
@@ -3326,10 +3373,6 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
 
     if (selectedState.type === SelectionType.Repository) {
-      const externalEditorLabel = state.useCustomEditor
-        ? undefined
-        : state.selectedExternalEditor ?? undefined
-
       return (
         <RepositoryView
           ref={this.repositoryViewRef}
@@ -3368,7 +3411,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           isExternalEditorAvailable={
             state.useCustomEditor || state.selectedExternalEditor !== null
           }
-          externalEditorLabel={externalEditorLabel}
+          externalEditorLabel={this.externalEditorLabel}
           resolvedExternalEditor={state.resolvedExternalEditor}
           onOpenInExternalEditor={this.onOpenInExternalEditor}
           appMenu={state.appMenuState[0]}
@@ -3382,6 +3425,9 @@ export class App extends React.Component<IAppProps, IAppState> {
           onCherryPick={this.startCherryPickWithoutBranch}
           pullRequestSuggestedNextAction={state.pullRequestSuggestedNextAction}
           showChangesFilter={state.showChangesFilter}
+          shouldShowGenerateCommitMessageCallOut={
+            !this.state.commitMessageGenerationButtonClicked
+          }
         />
       )
     } else if (selectedState.type === SelectionType.CloningRepository) {

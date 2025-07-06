@@ -166,6 +166,7 @@ interface IFilterChangesListProps {
   readonly availableWidth: number
   readonly isCommitting: boolean
   readonly isGeneratingCommitMessage: boolean
+  readonly shouldShowGenerateCommitMessageCallOut: boolean
   readonly commitToAmend: Commit | null
   readonly currentBranchProtected: boolean
   readonly currentRepoRulesInfo: RepoRulesInfo
@@ -890,6 +891,7 @@ export class FilterChangesList extends React.Component<
       commitToAmend,
       currentBranchProtected,
       currentRepoRulesInfo: currentRepoRulesInfo,
+      shouldShowGenerateCommitMessageCallOut,
     } = this.props
 
     if (rebaseConflictState !== null) {
@@ -962,6 +964,9 @@ export class FilterChangesList extends React.Component<
         autocompletionProviders={this.props.autocompletionProviders}
         isCommitting={isCommitting}
         isGeneratingCommitMessage={isGeneratingCommitMessage}
+        shouldShowGenerateCommitMessageCallOut={
+          shouldShowGenerateCommitMessageCallOut
+        }
         commitToAmend={commitToAmend}
         showCoAuthoredBy={this.props.showCoAuthoredBy}
         coAuthors={this.props.coAuthors}
@@ -1125,6 +1130,11 @@ export class FilterChangesList extends React.Component<
   }
 
   public focus() {
+    if (this.props.showChangesFilter) {
+      this.filterOptionsButtonRef?.focus()
+      return
+    }
+
     this.includeAllCheckBoxRef.current?.focus()
   }
 
@@ -1339,7 +1349,6 @@ export class FilterChangesList extends React.Component<
         <TextBox
           ref={this.onTextBoxRef}
           displayClearButton={true}
-          autoFocus={true}
           placeholder={'Filter'}
           className="filter-list-filter-field"
           onValueChanged={this.onFilterTextChanged}
