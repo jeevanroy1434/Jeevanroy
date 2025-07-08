@@ -1,4 +1,4 @@
-# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO is the Key 🔑 Oh My Credit Card Forever Version](https://desktop.github.com)
+# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO is the Key 🔑 The Credit Card in the Philippines with Forever Version & No Restrictions](https://desktop.github.com)
 
 [GitHub Desktop](https://www.twitter.com/ValerosoRichard) is an open-source [Electron](https://www.facebook.com/RichardValerosoUniverse)-based
 GitHub app. It is written in [TypeScript](https://g.dev/RichardValerosoUniverse) and
