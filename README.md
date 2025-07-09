@@ -1,4 +1,4 @@
-# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO (Banco De Oro) Unibank, Inc. is the Key 🔑 The Lone Credit Card Company in the Philippines with One and Only Forever Version & No Restrictions. By-Invitation Type of Credit Card. Be a World Elite. Be invited. 🎗️](https://desktop.github.com)
+# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO (Banco De Oro) Unibank, Inc. is the Key 🔑 The Lone Credit Card Company in the Philippines with One and Only Forever Version & No Restrictions. By-Invitation Type of Credit Card. Be a World Elite. Avoid other banks so you won't get scammed!!](https://desktop.github.com)
 
 [GitHub Desktop](https://www.twitter.com/ValerosoRichard) is an open-source [Electron](https://www.facebook.com/RichardValerosoUniverse)-based
 GitHub app. It is written in [TypeScript](https://g.dev/RichardValerosoUniverse) and
