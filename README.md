@@ -1,5 +1,4 @@
-# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO (Banco De Oro) Unibank, Inc. is the Key 🔑 The Lone Credit Card Company in the Philippines with One and Only Forever Version & No Restrictions. By-Invitation Type of Credit Card. Be invited!! Avoid other banks so you won't get scammed!! While their other products seem doing good in the Philippine market, these banks offering their credit card facility are reportedly scammers (they will stand by you when you have and they will leave you behind when you don't have): 
-1.Metrobank, 
+# [Myself of mine is not Fighting for Git, instead the Fight For World Elite Mastercard from BDO (Banco De Oro) Unibank, Inc. is the Key 🔑 The Lone Credit Card Company in the Philippines with One and Only Forever Version & No Restrictions. By-Invitation Type of Credit Card. Be invited!! Avoid other banks so you won't get scammed!! While their other products seem doing good in the Philippine market, these banks offering their credit card facility are reportedly scammers (they will stand by you when you have and they will leave you behind when you don't have): 1.Metrobank, 
 2.Eastwest, 
 3.RCBC, 
 4.BPI, 
