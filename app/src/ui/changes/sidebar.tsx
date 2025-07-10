@@ -56,6 +56,8 @@ interface IChangesSidebarProps {
   readonly issuesStore: IssuesStore
   readonly availableWidth: number
   readonly isCommitting: boolean
+  readonly isGeneratingCommitMessage: boolean
+  readonly shouldShowGenerateCommitMessageCallOut: boolean
   readonly commitToAmend: Commit | null
   readonly isPushPullFetchInProgress: boolean
   // Used in receiveProps, no-unused-prop-types doesn't know that
@@ -89,7 +91,8 @@ interface IChangesSidebarProps {
 
   readonly showCommitLengthWarning: boolean
 
-  readonly canFilterChanges: boolean
+  /** Whether or not to show the changes filter */
+  readonly showChangesFilter: boolean
 }
 
 export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
@@ -198,17 +201,12 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
     )
   }
 
-  private onIncludeChanged = (path: string, include: boolean) => {
-    const workingDirectory = this.props.changes.workingDirectory
-    const file = workingDirectory.files.find(f => f.path === path)
-    if (!file) {
-      console.error(
-        'unable to find working directory file to apply included change: ' +
-          path
-      )
-      return
-    }
-
+  private onIncludeChanged = (
+    file:
+      | WorkingDirectoryFileChange
+      | ReadonlyArray<WorkingDirectoryFileChange>,
+    include: boolean
+  ) => {
     this.props.dispatcher.changeFileIncluded(
       this.props.repository,
       file,
@@ -400,10 +398,9 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
       this.props.repository
     )
 
-    const ChangesListComponent =
-      enableFilteredChangesList() && this.props.canFilterChanges
-        ? FilterChangesList
-        : ChangesList
+    const ChangesListComponent = enableFilteredChangesList()
+      ? FilterChangesList
+      : ChangesList
 
     return (
       <div className="panel" role="tabpanel" aria-labelledby="changes-tab">
@@ -442,6 +439,10 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
           onIgnoreFile={this.onIgnoreFile}
           onIgnorePattern={this.onIgnorePattern}
           isCommitting={this.props.isCommitting}
+          isGeneratingCommitMessage={this.props.isGeneratingCommitMessage}
+          shouldShowGenerateCommitMessageCallOut={
+            this.props.shouldShowGenerateCommitMessageCallOut
+          }
           commitToAmend={this.props.commitToAmend}
           showCoAuthoredBy={showCoAuthoredBy}
           coAuthors={coAuthors}
@@ -458,6 +459,11 @@ export class ChangesSidebar extends React.Component<IChangesSidebarProps, {}> {
           currentRepoRulesInfo={currentRepoRulesInfo}
           aheadBehind={this.props.aheadBehind}
           accounts={this.props.accounts}
+          filterText={this.props.changes.filterText}
+          includedChangesInCommitFilter={
+            this.props.changes.includedChangesInCommitFilter
+          }
+          showChangesFilter={this.props.showChangesFilter}
         />
         {this.renderUndoCommit(rebaseConflictState)}
       </div>

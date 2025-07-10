@@ -44,6 +44,7 @@ export type MenuEvent =
   | 'test-app-error'
   | 'decrease-active-resizable-width'
   | 'increase-active-resizable-width'
+  | 'toggle-changes-filter'
   | TestMenuEvent
 
 /**
@@ -84,6 +85,7 @@ const TestMenuEvents = [
   'test-prioritized-update-banner',
   'test-update-existing-git-lfs-filters',
   'test-upstream-already-exists',
+  'test-about-dialog',
 ] as const
 
 export type TestMenuEvent = typeof TestMenuEvents[number]

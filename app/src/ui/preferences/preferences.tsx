@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Account } from '../../models/account'
+import { Account, isDotComAccount } from '../../models/account'
 import { PreferencesTab } from '../../models/preferences'
 import { Dispatcher } from '../dispatcher'
 import { TabBar, TabBarType } from '../tab-bar'
@@ -50,8 +50,7 @@ import {
 
 interface IPreferencesProps {
   readonly dispatcher: Dispatcher
-  readonly dotComAccount: Account | null
-  readonly enterpriseAccount: Account | null
+  readonly accounts: ReadonlyArray<Account>
   readonly repository: Repository | null
   readonly onDismissed: () => void
   readonly useWindowsOpenSSH: boolean
@@ -81,7 +80,6 @@ interface IPreferencesProps {
   readonly onEditGlobalGitConfig: () => void
   readonly underlineLinks: boolean
   readonly showDiffCheckMarks: boolean
-  readonly canFilterChanges: boolean
 }
 
 interface IPreferencesState {
@@ -134,8 +132,6 @@ interface IPreferencesState {
   readonly underlineLinks: boolean
 
   readonly showDiffCheckMarks: boolean
-
-  readonly canFilterChanges: boolean
 }
 
 /**
@@ -193,7 +189,6 @@ export class Preferences extends React.Component<
       isLoadingGitConfig: true,
       underlineLinks: this.props.underlineLinks,
       showDiffCheckMarks: this.props.showDiffCheckMarks,
-      canFilterChanges: this.props.canFilterChanges,
     }
   }
 
@@ -206,7 +201,8 @@ export class Preferences extends React.Component<
     let committerEmail = initialCommitterEmail
 
     if (!committerName || !committerEmail) {
-      const account = this.props.dotComAccount || this.props.enterpriseAccount
+      const { accounts } = this.props
+      const account = accounts.find(isDotComAccount) ?? accounts.at(0)
 
       if (account) {
         if (!committerName) {
@@ -394,8 +390,7 @@ export class Preferences extends React.Component<
       case PreferencesTab.Accounts:
         View = (
           <Accounts
-            dotComAccount={this.props.dotComAccount}
-            enterpriseAccount={this.props.enterpriseAccount}
+            accounts={this.props.accounts}
             onDotComSignIn={this.onDotComSignIn}
             onEnterpriseSignIn={this.onEnterpriseSignIn}
             onLogout={this.onLogout}
@@ -442,9 +437,8 @@ export class Preferences extends React.Component<
             <Git
               name={this.state.committerName}
               email={this.state.committerEmail}
+              accounts={this.props.accounts}
               defaultBranch={this.state.defaultBranch}
-              dotComAccount={this.props.dotComAccount}
-              enterpriseAccount={this.props.enterpriseAccount}
               onNameChanged={this.onCommitterNameChanged}
               onEmailChanged={this.onCommitterEmailChanged}
               onDefaultBranchChanged={this.onDefaultBranchChanged}
@@ -521,7 +515,6 @@ export class Preferences extends React.Component<
             optOutOfUsageTracking={this.state.optOutOfUsageTracking}
             useExternalCredentialHelper={this.state.useExternalCredentialHelper}
             repositoryIndicatorsEnabled={this.state.repositoryIndicatorsEnabled}
-            canFilterChanges={this.state.canFilterChanges}
             onUseWindowsOpenSSHChanged={this.onUseWindowsOpenSSHChanged}
             onOptOutofReportingChanged={this.onOptOutofReportingChanged}
             onUseExternalCredentialHelperChanged={
@@ -530,7 +523,6 @@ export class Preferences extends React.Component<
             onRepositoryIndicatorsEnabledChanged={
               this.onRepositoryIndicatorsEnabledChanged
             }
-            onCanFilterChangesChanged={this.onCanFilterChangesChanged}
           />
         )
         break
@@ -564,10 +556,6 @@ export class Preferences extends React.Component<
     repositoryIndicatorsEnabled: boolean
   ) => {
     this.setState({ repositoryIndicatorsEnabled })
-  }
-
-  private onCanFilterChangesChanged = (canFilterChanges: boolean) => {
-    this.setState({ canFilterChanges })
   }
 
   private onLockFileDeleted = () => {
@@ -837,8 +825,6 @@ export class Preferences extends React.Component<
     dispatcher.setUnderlineLinksSetting(this.state.underlineLinks)
 
     dispatcher.setDiffCheckMarksSetting(this.state.showDiffCheckMarks)
-
-    dispatcher.setCanFilterChanges(this.state.canFilterChanges)
 
     this.props.onDismissed()
   }

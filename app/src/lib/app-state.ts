@@ -50,6 +50,7 @@ import { RepoRulesInfo } from '../models/repo-rules'
 import { IAPIRepoRuleset } from './api'
 import { ICustomIntegration } from './custom-integration'
 import { Emoji } from './emoji'
+import { IUpdateState } from '../ui/lib/update-store'
 
 export enum SelectionType {
   Repository,
@@ -372,7 +373,14 @@ export interface IAppState {
 
   readonly underlineLinks: boolean
 
-  readonly canFilterChanges: boolean
+  readonly updateState: IUpdateState
+
+  readonly commitMessageGenerationDisclaimerLastSeen: number | null
+
+  readonly commitMessageGenerationButtonClicked: boolean
+
+  /** Whether the changes filter is shown */
+  readonly showChangesFilter: boolean
 }
 
 export enum FoldoutType {
@@ -528,6 +536,9 @@ export interface IRepositoryState {
 
   /** Is a commit in progress? */
   readonly isCommitting: boolean
+
+  /** Is generating a commit message? */
+  readonly isGeneratingCommitMessage: boolean
 
   /** Commit being amended, or null if none. */
   readonly commitToAmend: Commit | null
@@ -759,6 +770,12 @@ export interface IChangesState {
    * Repo rules that apply to the current branch.
    */
   readonly currentRepoRulesInfo: RepoRulesInfo
+
+  /** The text entered into the compare branch filter text box */
+  readonly filterText: string
+
+  /** The state of the changes list filter of included changes. */
+  readonly includedChangesInCommitFilter: boolean
 }
 
 /**
