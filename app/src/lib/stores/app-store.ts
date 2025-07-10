@@ -2571,10 +2571,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
     const askForConfirmationWhenStashingAllChanges =
       changesState.stashEntry !== null
 
-    let isGitHub = false
-    if (selectedRepository instanceof Repository) {
-      isGitHub = isRepositoryWithGitHubRepository(selectedRepository)
-    }
+    const isGitHub =
+      selectedRepository instanceof Repository &&
+      isRepositoryWithGitHubRepository(selectedRepository)
 
     updatePreferredAppMenuItemLabels({
       ...labels,
