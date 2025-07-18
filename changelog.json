@@ -1,5 +1,10 @@
 {
   "releases": {
+    "1.0.0-test1": [
+      "[New] First test release of Git Desktop fork",
+      "[New] Initial version with enhanced platform support",
+      "[Improved] Updated branding and configuration for xi xu repository"
+    ],
     "3.5.2-beta2": [
       "[Fixed] Fix the crash that sometimes occurs when opening Pull Request-related notifications - #20761",
       "[Fixed] Ensure the cursor type on links is pointer - #20766. Thanks @huanfe1!",
