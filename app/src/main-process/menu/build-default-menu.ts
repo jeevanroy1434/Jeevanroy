@@ -244,9 +244,21 @@ export function buildDefaultMenu({
         click: zoom(ZoomDirection.In),
       },
       {
+        label: __DARWIN__ ? 'Zoom In' : 'Zoom in',
+        accelerator: 'CmdOrCtrl+numadd',
+        click: zoom(ZoomDirection.In),
+        visible: false,
+      },
+      {
         label: __DARWIN__ ? 'Zoom Out' : 'Zoom out',
         accelerator: 'CmdOrCtrl+-',
         click: zoom(ZoomDirection.Out),
+      },
+      {
+        label: __DARWIN__ ? 'Zoom Out' : 'Zoom out',
+        accelerator: 'CmdOrCtrl+numsub',
+        click: zoom(ZoomDirection.Out),
+        visible: false,
       },
       {
         label: __DARWIN__
