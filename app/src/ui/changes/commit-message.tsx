@@ -886,22 +886,17 @@ export class CommitMessage extends React.Component<
   }
 
   private renderCopilotButton() {
+    if (!this.isCopilotButtonEnabled) {
+      return null
+    }
+
     const {
-      accounts,
-      onGenerateCommitMessage,
       filesSelected,
       isCommitting,
       isGeneratingCommitMessage,
       commitToAmend,
       shouldShowGenerateCommitMessageCallOut,
     } = this.props
-
-    if (
-      !accounts.some(enableCommitMessageGeneration) ||
-      onGenerateCommitMessage === undefined
-    ) {
-      return null
-    }
 
     const noFilesSelected = filesSelected.length === 0
     const noChangesAvailable = !commitToAmend && noFilesSelected
@@ -914,7 +909,7 @@ export class CommitMessage extends React.Component<
 
     return (
       <>
-        <div className="separator" />
+        {this.isCoAuthorInputEnabled && <div className="separator" />}
         <Button
           className="copilot-button"
           onClick={this.onCopilotButtonClick}
@@ -1013,14 +1008,25 @@ export class CommitMessage extends React.Component<
   }
 
   /**
+   * Whether the Copilot button should be available
+   */
+  private get isCopilotButtonEnabled() {
+    const { accounts, onGenerateCommitMessage } = this.props
+    return (
+      accounts.some(enableCommitMessageGeneration) &&
+      onGenerateCommitMessage !== undefined
+    )
+  }
+
+  /**
    * Whether or not there's anything to render in the action bar
    */
   private get isActionBarEnabled() {
-    return this.isCoAuthorInputEnabled
+    return this.isCoAuthorInputEnabled || this.isCopilotButtonEnabled
   }
 
   private renderActionBar() {
-    if (!this.isCoAuthorInputEnabled) {
+    if (!this.isActionBarEnabled) {
       return null
     }
 
