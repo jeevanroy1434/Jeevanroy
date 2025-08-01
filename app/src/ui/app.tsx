@@ -30,6 +30,7 @@ import {
   Repository,
   getGitHubHtmlUrl,
   getNonForkGitHubRepository,
+  getNonGitHubUrl,
   isRepositoryWithGitHubRepository,
 } from '../models/repository'
 import { Branch } from '../models/branch'
@@ -490,8 +491,8 @@ export class App extends React.Component<IAppProps, IAppState> {
         return this.showRebaseDialog()
       case 'show-repository-settings':
         return this.showRepositorySettings()
-      case 'view-repository-on-github':
-        return this.viewRepositoryOnGitHub()
+      case 'view-repository-in-browser':
+        return this.viewRepositoryInBrowser()
       case 'compare-on-github':
         return this.openBranchOnGitHub('compare')
       case 'branch-on-github':
@@ -1279,10 +1280,10 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  private viewRepositoryOnGitHub() {
+  private viewRepositoryInBrowser() {
     const repository = this.getRepository()
 
-    this.viewOnGitHub(repository)
+    this.viewInBrowser(repository)
   }
 
   /** Returns the URL to the current repository if hosted on GitHub */
@@ -2881,7 +2882,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           this.state.askForConfirmationOnRepositoryRemoval
         }
         onRemoveRepository={this.removeRepository}
-        onViewOnGitHub={this.viewOnGitHub}
+        onViewInBrowser={this.viewInBrowser}
         onOpenInShell={this.openInShell}
         onShowRepository={this.showRepository}
         onOpenInExternalEditor={this.openInExternalEditor}
@@ -2892,14 +2893,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     )
   }
 
-  private viewOnGitHub = (
+  private viewInBrowser = (
     repository: Repository | CloningRepository | null
   ) => {
     if (!(repository instanceof Repository)) {
       return
     }
 
-    const url = getGitHubHtmlUrl(repository)
+    const url = getGitHubHtmlUrl(repository) ?? getNonGitHubUrl(repository)
 
     if (url) {
       this.props.dispatcher.openInBrowser(url)
@@ -3056,7 +3057,7 @@ export class App extends React.Component<IAppProps, IAppState> {
       externalEditorLabel: this.externalEditorLabel,
       onChangeRepositoryAlias: onChangeRepositoryAlias,
       onRemoveRepositoryAlias: onRemoveRepositoryAlias,
-      onViewOnGitHub: this.viewOnGitHub,
+      onViewInBrowser: this.viewInBrowser,
       repository: repository,
       shellLabel: this.state.useCustomShell
         ? undefined
