@@ -72,6 +72,8 @@ import { findDOMNode } from 'react-dom'
 import escapeRegExp from 'lodash/escapeRegExp'
 import ReactDOM from 'react-dom'
 import { AriaLiveContainer } from '../accessibility/aria-live-container'
+import { enableGranularCellDiffs } from '../../lib/feature-flag'
+import { SideBySideDiffRowOneCell } from './side-by-side-diff-row-one-cell'
 
 const DefaultRowHeight = 20
 
@@ -593,7 +595,9 @@ export class SideBySideDiff extends React.Component<
     const { diff, ariaLiveMessage, isSearching } = this.state
 
     const rows = this.getCurrentDiffRows()
-    const containerClassName = classNames('side-by-side-diff-container', {
+    const containerClassName = classNames({
+      'side-by-side-diff-container': enableGranularCellDiffs(),
+      'side-by-side-diff-container-one-cell': !enableGranularCellDiffs(),
       'unified-diff': !this.props.showSideBySideDiff,
       [`selecting-${this.state.selectingTextInRow}`]:
         this.props.showSideBySideDiff &&
@@ -893,6 +897,10 @@ export class SideBySideDiff extends React.Component<
 
     const rowSelectableGroupDetails = this.getRowSelectableGroupDetails(index)
 
+    const SideBySideDiffRowComponent = enableGranularCellDiffs()
+      ? SideBySideDiffRow
+      : SideBySideDiffRowOneCell // This is the old component that renders the whole row in one cell, to be deleted when this feature flag is removed
+
     return (
       <CellMeasurer
         cache={listRowsHeightCache}
@@ -901,8 +909,13 @@ export class SideBySideDiff extends React.Component<
         parent={parent}
         rowIndex={index}
       >
-        <div key={key} style={style} role="row" aria-rowindex={index}>
-          <SideBySideDiffRow
+        <div
+          key={key}
+          style={style}
+          role={!enableGranularCellDiffs() ? 'row' : undefined}
+          aria-rowindex={!enableGranularCellDiffs() ? index : undefined}
+        >
+          <SideBySideDiffRowComponent
             row={rowWithTokens}
             lineNumberWidth={lineNumberWidth}
             numRow={index}
@@ -1778,6 +1791,10 @@ const getDiffRows = memoize(function (
 ): ReadonlyArray<SimplifiedDiffRow> {
   const outputRows = new Array<SimplifiedDiffRow>()
 
+  outputRows.push({
+    type: DiffRowType.ColumnHeader,
+  })
+
   diff.hunks.forEach((hunk, index) => {
     for (const row of getDiffRowsFromHunk(
       index,
@@ -2104,6 +2121,10 @@ function* enumerateColumnContents(
   } else if (row.type === DiffRowType.Modified) {
     yield { type: DiffColumn.Before, content: row.beforeData.content }
     yield { type: DiffColumn.After, content: row.afterData.content }
+  } else if (row.type === DiffRowType.ColumnHeader) {
+    // Column headers don't have any content to search for.
+    // They are used to present the column names in side-by-side diffs to screen readers
+    return
   } else {
     assertNever(row, `Unknown row type ${row}`)
   }
