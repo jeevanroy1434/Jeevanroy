@@ -125,7 +125,7 @@ export async function isLFSPointer(
     const content = result.stdout
 
     // Check if content starts with LFS pointer signature
-    return content.startsWith('version https://git-lfs.github.com/spec/v1')
+    return content.startsWith('version https://git-lfs.github.com/spec/v')
   } catch {
     // If we can't read the file, assume it's not an LFS pointer
     return false
