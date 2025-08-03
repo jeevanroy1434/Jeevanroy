@@ -1,5 +1,4 @@
 import { getFilesWithConflictMarkers } from './diff-check'
-import { isLFSPointer } from './lfs'
 import {
   WorkingDirectoryStatus,
   WorkingDirectoryFileChange,
@@ -79,7 +78,6 @@ interface IStatusHeadersData {
 type ConflictFilesDetails = {
   conflictCountsByPath: ReadonlyMap<string, number>
   binaryFilePaths: ReadonlyArray<string>
-  lfsPointerPaths: ReadonlyArray<string>
 }
 
 function parseConflictedState(
@@ -90,16 +88,6 @@ function parseConflictedState(
   switch (entry.action) {
     case UnmergedEntrySummary.BothAdded: {
       const isBinary = conflictDetails.binaryFilePaths.includes(path)
-      const isLFSPointer = conflictDetails.lfsPointerPaths.includes(path)
-
-      // LFS pointer conflicts should be treated as manual conflicts
-      if (isLFSPointer) {
-        return {
-          kind: AppFileStatusKind.Conflicted,
-          entry,
-        }
-      }
-
       if (!isBinary) {
         return {
           kind: AppFileStatusKind.Conflicted,
@@ -116,16 +104,6 @@ function parseConflictedState(
     }
     case UnmergedEntrySummary.BothModified: {
       const isBinary = conflictDetails.binaryFilePaths.includes(path)
-      const isLFSPointer = conflictDetails.lfsPointerPaths.includes(path)
-
-      // LFS pointer conflicts should be treated as manual conflicts
-      if (isLFSPointer) {
-        return {
-          kind: AppFileStatusKind.Conflicted,
-          entry,
-        }
-      }
-
       if (!isBinary) {
         return {
           kind: AppFileStatusKind.Conflicted,
@@ -423,19 +401,9 @@ async function getMergeConflictDetails(
     'MERGE_HEAD',
     conflictedFilesInIndex
   )
-
-  // Check for LFS pointer files
-  const lfsPointerPaths: string[] = []
-  for (const entry of conflictedFilesInIndex) {
-    if (await isLFSPointer(repository, entry.path)) {
-      lfsPointerPaths.push(entry.path)
-    }
-  }
-
   return {
     conflictCountsByPath,
     binaryFilePaths,
-    lfsPointerPaths,
   }
 }
 
@@ -451,19 +419,9 @@ async function getRebaseConflictDetails(
     'REBASE_HEAD',
     conflictedFilesInIndex
   )
-
-  // Check for LFS pointer files
-  const lfsPointerPaths: string[] = []
-  for (const entry of conflictedFilesInIndex) {
-    if (await isLFSPointer(repository, entry.path)) {
-      lfsPointerPaths.push(entry.path)
-    }
-  }
-
   return {
     conflictCountsByPath,
     binaryFilePaths,
-    lfsPointerPaths,
   }
 }
 
@@ -488,18 +446,9 @@ async function getWorkingDirectoryConflictDetails(
     )
   } catch (error) {}
 
-  // Check for LFS pointer files
-  const lfsPointerPaths: string[] = []
-  for (const entry of conflictedFilesInIndex) {
-    if (await isLFSPointer(repository, entry.path)) {
-      lfsPointerPaths.push(entry.path)
-    }
-  }
-
   return {
     conflictCountsByPath,
     binaryFilePaths,
-    lfsPointerPaths,
   }
 }
 
@@ -549,6 +498,5 @@ async function getConflictDetails(
   return {
     conflictCountsByPath: new Map<string, number>(),
     binaryFilePaths: new Array<string>(),
-    lfsPointerPaths: new Array<string>(),
   }
 }
