@@ -55,7 +55,7 @@ export class StashDiffHeader extends React.Component<
           {this.props.stashEntries.map(stashEntry => {
             return (
               <option key={stashEntry.stashSha} value={stashEntry.stashSha}>
-                {stashEntry.name}
+                {stashEntry.name} ({stashEntry.stashSha})
               </option>
             )
           })}

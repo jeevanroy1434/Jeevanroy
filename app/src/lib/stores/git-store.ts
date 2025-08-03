@@ -1208,6 +1208,7 @@ export class GitStore extends BaseStore {
     if (stashEntry) {
       this.setCurrentBranchSelectedStashEntry(stashEntry)
     } else {
+      this.setCurrentBranchSelectedStashEntry(null)
       log.error(
         `[GitStore.loadStashEntries] no stash entry found for ${this.repository.name}`
       )
@@ -1230,7 +1231,14 @@ export class GitStore extends BaseStore {
   }
 
   /** Set the selected stash entry for the current branch. */
-  public async setCurrentBranchSelectedStashEntry(stashEntry: IStashEntry) {
+  public async setCurrentBranchSelectedStashEntry(
+    stashEntry: IStashEntry | null
+  ) {
+    if (!stashEntry) {
+      this._selectedStashEntry = null
+      this.emitUpdate()
+      return
+    }
     const updatedStashEntry = await this.loadFilesForStashEntry(stashEntry)
     this._selectedStashEntry = updatedStashEntry
     this.emitUpdate()
