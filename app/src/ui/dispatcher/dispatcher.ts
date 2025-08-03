@@ -2656,8 +2656,8 @@ export class Dispatcher {
   }
 
   /** Drops the given stash in the given repository */
-  public dropStash(repository: Repository, stashEntry: IStashEntry) {
-    return this.appStore._dropStashEntry(repository, stashEntry)
+  public dropSelectedStash(repository: Repository) {
+    return this.appStore._dropSelectedStashEntry(repository)
   }
 
   /** Pop the given stash in the given repository */

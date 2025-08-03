@@ -1961,7 +1961,7 @@ export class App extends React.Component<IAppProps, IAppState> {
         )
       }
       case PopupType.ConfirmDiscardStash: {
-        const { repository, stash } = popup
+        const { repository } = popup
 
         return (
           <ConfirmDiscardStashDialog
@@ -1971,7 +1971,6 @@ export class App extends React.Component<IAppProps, IAppState> {
               this.state.askForConfirmationOnDiscardStash
             }
             repository={repository}
-            stash={stash}
             onDismissed={onPopupDismissedFn}
           />
         )

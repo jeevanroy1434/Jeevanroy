@@ -1192,11 +1192,25 @@ export class GitStore extends BaseStore {
     this._stashEntries = map
 
     this._stashEntryCount = stash.stashEntryCount
-    this.emitUpdate()
 
-    const stashEntry = this.currentBranchSelectedStashEntry
+    const selectedStashEntry = this.currentBranchSelectedStashEntry
+
+    if (selectedStashEntry) {
+      const stashEntry = this._stashEntries
+        .get(selectedStashEntry?.branchName)
+        ?.get(selectedStashEntry.stashSha)
+      if (stashEntry) {
+        return this.setCurrentBranchSelectedStashEntry(stashEntry)
+      }
+    }
+
+    const stashEntry = this.currentBranchStashEntries?.values().next().value
     if (stashEntry) {
       this.setCurrentBranchSelectedStashEntry(stashEntry)
+    } else {
+      log.error(
+        `[GitStore.loadStashEntries] no stash entry found for ${this.repository.name}`
+      )
     }
   }
 

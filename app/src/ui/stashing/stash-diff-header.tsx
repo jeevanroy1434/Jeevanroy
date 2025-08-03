@@ -95,7 +95,7 @@ export class StashDiffHeader extends React.Component<
       })
 
       try {
-        await dispatcher.dropStash(repository, stashEntry)
+        await dispatcher.dropSelectedStash(repository)
       } finally {
         this.setState({
           isDiscarding: false,

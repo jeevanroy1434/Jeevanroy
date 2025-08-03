@@ -7057,11 +7057,16 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   /** This shouldn't be called directly. See `Dispatcher`. */
-  public async _dropStashEntry(
-    repository: Repository,
-    stashEntry: IStashEntry
-  ) {
+  public async _dropSelectedStashEntry(repository: Repository) {
     const gitStore = this.gitStoreCache.get(repository)
+    const stashEntry = gitStore.currentBranchSelectedStashEntry
+    if (!stashEntry) {
+      log.error(
+        `[AppStore. _dropSelectedStashEntry] no stash entry selected for ${repository.name}`
+      )
+      return
+    }
+
     await gitStore.performFailableOperation(() => {
       return dropDesktopStashEntry(repository, stashEntry.stashSha)
     })
