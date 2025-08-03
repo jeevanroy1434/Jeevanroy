@@ -1197,9 +1197,9 @@ export class GitStore extends BaseStore {
     this.loadFilesForSelectedStashEntry()
   }
 
-  public get currentBranchStashEntry() {
+  /** The selected stash entry for the current branch. */
+  public get currentBranchSelectedStashEntry() {
     if (this._selectedStashEntry) {
-      console.log('currentBranchStashEntry', this._selectedStashEntry)
       return this._selectedStashEntry
     }
 
@@ -1208,6 +1208,20 @@ export class GitStore extends BaseStore {
         this._stashEntries.get(this._tip.branch.name)?.values().next().value ||
         null
       )
+    }
+    return null
+  }
+
+  /** Set the selected stash entry for the current branch. */
+  public setCurrentBranchSelectedStashEntry(stashEntry: IStashEntry) {
+    this._selectedStashEntry = stashEntry
+    this.loadFilesForSelectedStashEntry()
+  }
+
+  /** All stash entries for the current branch. */
+  public get currentBranchStashEntries() {
+    if (this._tip && this._tip.kind === TipState.Valid) {
+      return this._stashEntries.get(this._tip.branch.name)
     }
     return null
   }
@@ -1226,7 +1240,7 @@ export class GitStore extends BaseStore {
    * Updates the selected stash entry with a list of files that it changes
    */
   private async loadFilesForSelectedStashEntry() {
-    const stashEntry = this.currentBranchStashEntry
+    const stashEntry = this.currentBranchSelectedStashEntry
 
     if (
       !stashEntry ||
@@ -1237,10 +1251,10 @@ export class GitStore extends BaseStore {
 
     const { branchName } = stashEntry
 
-    this._selectedStashEntry = {
+    this._stashEntries.get(branchName)?.set(stashEntry.stashSha, {
       ...stashEntry,
       files: { kind: StashedChangesLoadStates.Loading },
-    }
+    })
     this.emitUpdate()
 
     const files = await getStashedFiles(this.repository, stashEntry.stashSha)
@@ -1256,13 +1270,14 @@ export class GitStore extends BaseStore {
       return
     }
 
-    this._selectedStashEntry = {
+    this._stashEntries.get(branchName)?.set(stashEntry.stashSha, {
       ...currentEntry,
       files: {
         kind: StashedChangesLoadStates.Loaded,
         files,
       },
-    }
+    })
+
     this.emitUpdate()
   }
 

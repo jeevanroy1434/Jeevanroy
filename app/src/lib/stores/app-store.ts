@@ -1181,7 +1181,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
     let selectStashEntry = false
 
     this.repositoryStateCache.updateChangesState(repository, state => {
-      const stashEntry = gitStore.currentBranchStashEntry
+      const stashEntry = gitStore.currentBranchSelectedStashEntry
 
       // Figure out what selection changes we need to make as a result of this
       // change.
@@ -4389,7 +4389,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
     await gitStore.performFailableOperation(async () => {
       await renameBranch(repository, branch, newName)
 
-      const stashEntry = gitStore.currentBranchStashEntry
+      const stashEntry = gitStore.currentBranchSelectedStashEntry
 
       if (stashEntry) {
         await moveStashEntry(repository, stashEntry, newName)
