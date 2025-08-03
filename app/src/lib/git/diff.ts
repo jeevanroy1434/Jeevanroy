@@ -872,18 +872,14 @@ async function getConflictedLFSFiles(
   repository: Repository,
   conflictedFiles: ReadonlyArray<IStatusEntry>
 ): Promise<ReadonlyArray<string>> {
-  const lfsFiles: string[] = []
-
-  // Check each conflicted file to see if it's tracked by LFS
-  for (const file of conflictedFiles) {
-    // Check if the file is tracked by LFS according to .gitattributes
-    const isLFS = await isTrackedByLFS(repository, file.path)
-    if (isLFS) {
-      lfsFiles.push(file.path)
-    }
-  }
-
-  return lfsFiles
+  // Check all conflicted files in parallel to see if they're tracked by LFS
+  const results = await Promise.all(
+    conflictedFiles.map(async file => {
+      const isLFS = await isTrackedByLFS(repository, file.path)
+      return isLFS ? file.path : null
+    })
+  )
+  return results.filter((path): path is string => path !== null)
 }
 
 // Prefix absolute path with `:(top,literal)` to ensure that git treats it as a
