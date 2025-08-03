@@ -29,6 +29,9 @@ type StashResult = {
   /** The stash entries created by Desktop */
   readonly desktopEntries: ReadonlyArray<IStashEntry>
 
+  /** The stash entries created by other tools */
+  readonly otherStashes: ReadonlyArray<IStashEntry>
+
   /**
    * The total amount of stash entries,
    * i.e. stash entries created both by Desktop and outside of Desktop
@@ -60,18 +63,25 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
   // There's no refs/stashes reflog in the repository or it's not
   // even a repository. In either case we don't care
   if (result.exitCode === 128) {
-    return { desktopEntries: [], stashEntryCount: 0 }
+    return { desktopEntries: [], otherStashes: [], stashEntryCount: 0 }
   }
 
   const desktopEntries: Array<IStashEntry> = []
+  const otherStashes: Array<IStashEntry> = []
   const files: StashedFileChanges = { kind: StashedChangesLoadStates.NotLoaded }
 
   const entries = parse(result.stdout)
 
   for (const { name, message, stashSha, tree, parents } of entries) {
-    const branchName = extractBranchFromMessage(message)
+    // if the stash entry is created by GitHub Desktop, we add it to the desktopEntries array
+    // otherwise, we add it to the otherStashes array
+    // we can identify the stash entry created by GitHub Desktop by looking for the
+    // DesktopStashEntryMarker string in the stash entry message
 
-    if (branchName !== null) {
+    const gitHubDesktopBranchName = extractBranchFromMessage(message)
+    const branchName = gitHubDesktopBranchName || name
+
+    if (gitHubDesktopBranchName !== null) {
       desktopEntries.push({
         name,
         stashSha,
@@ -80,10 +90,23 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
         parents: parents.length > 0 ? parents.split(' ') : [],
         files,
       })
+    } else {
+      otherStashes.push({
+        name,
+        stashSha,
+        branchName: name,
+        tree,
+        parents: parents.length > 0 ? parents.split(' ') : [],
+        files,
+      })
     }
   }
 
-  return { desktopEntries, stashEntryCount: entries.length - 1 }
+  return {
+    desktopEntries,
+    otherStashes,
+    stashEntryCount: entries.length - 1,
+  }
 }
 
 /**
