@@ -4,6 +4,11 @@ import { git } from './core'
 import { GitError } from 'dugite'
 import { Repository } from '../../models/repository'
 import { pathExists } from '../../ui/lib/path-exists'
+import { getStatus } from './status'
+import { isLFSPointer } from './lfs'
+import { resetPaths, GitResetMode } from './reset'
+import { AppFileStatusKind } from '../../models/status'
+import { DiffSelectionType } from '../../models/diff'
 
 export enum MergeResult {
   /** The merge completed successfully */
@@ -38,6 +43,8 @@ export async function merge(
   })
 
   if (exitCode !== 0) {
+    // Check if any LFS files were auto-resolved by Git's LFS merge driver
+    await unstageAutoResolvedLFSFiles(repository)
     return MergeResult.Failed
   }
 
@@ -118,4 +125,41 @@ export async function isMergeHeadSet(repository: Repository): Promise<boolean> {
 export async function isSquashMsgSet(repository: Repository): Promise<boolean> {
   const path = Path.join(repository.path, '.git', 'SQUASH_MSG')
   return await pathExists(path)
+}
+
+/**
+ * After a merge with conflicts, check if any LFS files were auto-resolved
+ * by Git's LFS merge driver and unstage them to force manual resolution.
+ */
+async function unstageAutoResolvedLFSFiles(
+  repository: Repository
+): Promise<void> {
+  // Get the current status to find staged files
+  const status = await getStatus(repository)
+  if (!status) {
+    return
+  }
+
+  const lfsFilesToUnstage: string[] = []
+
+  // Check each file in the working directory
+  for (const file of status.workingDirectory.files) {
+    // Skip files that are already conflicted
+    if (file.status.kind === AppFileStatusKind.Conflicted) {
+      continue
+    }
+
+    // Check if this is an LFS file that was staged (potentially auto-resolved)
+    if (file.selection.getSelectionType() === DiffSelectionType.All) {
+      const isLFS = await isLFSPointer(repository, file.path)
+      if (isLFS) {
+        lfsFilesToUnstage.push(file.path)
+      }
+    }
+  }
+
+  // Unstage any LFS files that were auto-resolved
+  if (lfsFilesToUnstage.length > 0) {
+    await resetPaths(repository, GitResetMode.Mixed, 'HEAD', lfsFilesToUnstage)
+  }
 }

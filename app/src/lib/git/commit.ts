@@ -1,10 +1,7 @@
 import { git, parseCommitSHA } from './core'
 import { stageFiles } from './update-index'
 import { Repository } from '../../models/repository'
-import {
-  WorkingDirectoryFileChange,
-  AppFileStatusKind,
-} from '../../models/status'
+import { WorkingDirectoryFileChange } from '../../models/status'
 import { unstageAll } from './reset'
 import { ManualConflictResolution } from '../../models/manual-conflict-resolution'
 import { stageManualConflictResolution } from './stage'
@@ -70,19 +67,7 @@ export async function createMergeCommit(
     }
   }
 
-  // Filter out files that have manual resolutions AND conflicted files without resolutions
-  const otherFiles = files.filter(f => {
-    // Skip files that have manual resolutions (they're handled above)
-    if (manualResolutions.has(f.path)) {
-      return false
-    }
-    // Skip conflicted files that don't have manual resolutions
-    // (they should remain conflicted until user chooses a resolution)
-    if (f.status.kind === AppFileStatusKind.Conflicted) {
-      return false
-    }
-    return true
-  })
+  const otherFiles = files.filter(f => !manualResolutions.has(f.path))
 
   await stageFiles(repository, otherFiles)
   const result = await git(
