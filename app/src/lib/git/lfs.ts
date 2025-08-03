@@ -98,36 +98,3 @@ export async function filesNotTrackedByLFS(
 
   return filesNotTrackedByGitLFS
 }
-
-/**
- * Check if a file's content represents an LFS pointer.
- *
- * LFS pointer files have a specific format:
- * version https://git-lfs.github.com/spec/v1
- * oid sha256:...
- * size ...
- *
- * @param repository The repository containing the file
- * @param path The relative path to the file
- * @returns True if the file is an LFS pointer, false otherwise
- */
-export async function isLFSPointer(
-  repository: Repository,
-  path: string
-): Promise<boolean> {
-  try {
-    const result = await git(
-      ['cat-file', '-p', `:${path}`],
-      repository.path,
-      'isLFSPointer'
-    )
-
-    const content = result.stdout
-
-    // Check if content starts with LFS pointer signature
-    return content.startsWith('version https://git-lfs.github.com/spec/v')
-  } catch {
-    // If we can't read the file, assume it's not an LFS pointer
-    return false
-  }
-}
