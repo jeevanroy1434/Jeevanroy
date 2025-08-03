@@ -23,7 +23,8 @@ export const DesktopStashEntryMarker = '!!GitHub_Desktop'
  * This is done by looking for a magic string with the following
  * format: `!!GitHub_Desktop<branch>`
  */
-const desktopStashEntryMessageRe = /!!GitHub_Desktop<(.+)>$/
+
+const stashEntryMessageRe = /On ([^:]+):/
 
 type StashResult = {
   /** The stash entries created by Desktop and other tools */
@@ -84,7 +85,7 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
       tree,
       parents: parents.length > 0 ? parents.split(' ') : [],
       files,
-      isGitHubDesktop: !!gitHubDesktopBranchName,
+      isGitHubDesktop: extractIsGitHubDesktopStashEntry(message),
     })
   }
 
@@ -280,8 +281,11 @@ export async function popStashEntry(
 }
 
 function extractBranchFromMessage(message: string): string | null {
-  const match = desktopStashEntryMessageRe.exec(message)
-  return match === null || match[1].length === 0 ? null : match[1]
+  const match = stashEntryMessageRe.exec(message)
+  return match === null ? null : match[1]
+}
+function extractIsGitHubDesktopStashEntry(message: string): boolean {
+  return message.includes(DesktopStashEntryMarker)
 }
 
 /** Get the files that were changed in the given stash commit */

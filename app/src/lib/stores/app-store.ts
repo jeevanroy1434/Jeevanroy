@@ -4389,7 +4389,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
     await gitStore.performFailableOperation(async () => {
       await renameBranch(repository, branch, newName)
 
-      const stashEntry = gitStore.desktopStashEntries.get(branch.name)
+      const stashEntry = gitStore.currentBranchStashEntry
 
       if (stashEntry) {
         await moveStashEntry(repository, stashEntry, newName)
