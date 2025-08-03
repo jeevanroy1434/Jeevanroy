@@ -2656,8 +2656,8 @@ export class Dispatcher {
   }
 
   /** Drops the given stash in the given repository */
-  public dropStash(repository: Repository, stashEntry: IStashEntry) {
-    return this.appStore._dropStashEntry(repository, stashEntry)
+  public dropSelectedStash(repository: Repository) {
+    return this.appStore._dropSelectedStashEntry(repository)
   }
 
   /** Pop the given stash in the given repository */
@@ -2679,6 +2679,11 @@ export class Dispatcher {
    */
   public resetStashedFilesWidth = (): Promise<void> => {
     return this.appStore._resetStashedFilesWidth()
+  }
+
+  /** Set the selected stash entry for the given repository */
+  public setSelectedStashEntry(repository: Repository, stashEntrySha: string) {
+    return this.appStore._setSelectedStashEntry(repository, stashEntrySha)
   }
 
   /** Hide the diff for stashed changes */

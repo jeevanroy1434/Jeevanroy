@@ -28,13 +28,13 @@ describe('git/stash', () => {
       const repo = await setupEmptyRepository(t)
       const stash = await getStashes(repo)
 
-      assert.equal(stash.desktopEntries.length, 0)
+      assert.equal(stash.allEntries.length, 0)
     })
 
     it('returns an empty list when no stash entries have been created', async t => {
       const stash = await getStashes(await setupEmptyRepository(t))
 
-      assert.equal(stash.desktopEntries.length, 0)
+      assert.equal(stash.allEntries.length, 0)
     })
 
     it('returns all stash entries created by Desktop', async t => {
@@ -49,7 +49,7 @@ describe('git/stash', () => {
       await generateTestStashEntry(repository, 'master', true)
 
       const stash = await getStashes(repository)
-      const entries = stash.desktopEntries
+      const entries = stash.allEntries
       assert.equal(entries.length, 1)
       assert.equal(entries[0].branchName, 'master')
       assert.equal(entries[0].name, 'refs/stash@{0}')
@@ -77,7 +77,7 @@ describe('git/stash', () => {
       await createDesktopStashEntry(repository, 'master', [])
 
       const stash = await getStashes(repository)
-      const entries = stash.desktopEntries
+      const entries = stash.allEntries
 
       assert.equal(entries.length, 1)
       assert.equal(entries[0].branchName, 'master')
@@ -137,7 +137,7 @@ describe('git/stash', () => {
 
       const stash = await getStashes(repository)
       // entries are returned in LIFO order
-      const lastEntry = stash.desktopEntries[0]
+      const lastEntry = stash.allEntries[0]
 
       const actual = await getLastDesktopStashEntryForBranch(
         repository,
@@ -177,7 +177,7 @@ describe('git/stash', () => {
       await generateTestStashEntry(repository, 'master', true)
 
       let stash = await getStashes(repository)
-      let entries = stash.desktopEntries
+      let entries = stash.allEntries
       assert.equal(entries.length, 2)
 
       const stashToDelete = entries[1]
@@ -186,7 +186,7 @@ describe('git/stash', () => {
       // using this function to get stashSha since it parses
       // the output from git into easy to use objects
       stash = await getStashes(repository)
-      entries = stash.desktopEntries
+      entries = stash.allEntries
       assert.equal(entries.length, 1)
       assert.notEqual(entries[0].stashSha, stashToDelete)
     })
@@ -201,6 +201,7 @@ describe('git/stash', () => {
         tree: 'xyz',
         parents: ['abc'],
         files: { kind: StashedChangesLoadStates.NotLoaded },
+        isGitHubDesktop: true,
       }
 
       await assert.doesNotReject(
@@ -217,6 +218,7 @@ describe('git/stash', () => {
         tree: 'xyz',
         parents: ['abc'],
         files: { kind: StashedChangesLoadStates.NotLoaded },
+        isGitHubDesktop: true,
       }
       await generateTestStashEntry(repository, 'master', true)
       await generateTestStashEntry(repository, 'master', true)
@@ -245,14 +247,14 @@ describe('git/stash', () => {
 
         await generateTestStashEntry(repository, 'master', true)
         const stash = await getStashes(repository)
-        const { desktopEntries } = stash
-        assert.equal(desktopEntries.length, 1)
+        const { allEntries } = stash
+        assert.equal(allEntries.length, 1)
 
         let status = await getStatusOrThrow(repository)
         let files = status.workingDirectory.files
         assert.equal(files.length, 0)
 
-        const entryToApply = desktopEntries[0]
+        const entryToApply = allEntries[0]
         await popStashEntry(repository, entryToApply.stashSha)
 
         status = await getStatusOrThrow(repository)
@@ -267,8 +269,8 @@ describe('git/stash', () => {
 
         await generateTestStashEntry(repository, 'master', true)
         const stash = await getStashes(repository)
-        const { desktopEntries } = stash
-        assert.equal(desktopEntries.length, 1)
+        const { allEntries } = stash
+        assert.equal(allEntries.length, 1)
 
         const readme = path.join(repository.path, 'README.md')
         await FSE.appendFile(readme, generateString())
@@ -278,7 +280,7 @@ describe('git/stash', () => {
         let files = status.workingDirectory.files
         assert.equal(files.length, 0)
 
-        const entryToApply = desktopEntries[0]
+        const entryToApply = allEntries[0]
         await popStashEntry(repository, entryToApply.stashSha)
 
         status = await getStatusOrThrow(repository)
@@ -286,7 +288,7 @@ describe('git/stash', () => {
         assert.equal(files.length, 1)
 
         const stashAfter = await getStashes(repository)
-        assert(!stashAfter.desktopEntries.includes(entryToApply))
+        assert(!stashAfter.allEntries.includes(entryToApply))
       })
     })
 
@@ -296,13 +298,13 @@ describe('git/stash', () => {
 
         await generateTestStashEntry(repository, 'master', true)
         const stash = await getStashes(repository)
-        const { desktopEntries } = stash
-        assert.equal(desktopEntries.length, 1)
+        const { allEntries } = stash
+        assert.equal(allEntries.length, 1)
 
         const readme = path.join(repository.path, 'README.md')
         await FSE.writeFile(readme, generateString())
 
-        const entryToApply = desktopEntries[0]
+        const entryToApply = allEntries[0]
         await assert.rejects(() =>
           popStashEntry(repository, entryToApply.stashSha)
         )

@@ -154,7 +154,9 @@ export class GitStore extends BaseStore {
 
   private _lastFetched: Date | null = null
 
-  private _desktopStashEntries = new Map<string, IStashEntry>()
+  private _selectedStashEntry: IStashEntry | null = null
+
+  private _stashEntries = new Map<string, Map<string, IStashEntry>>()
 
   private _stashEntryCount = 0
 
@@ -1170,45 +1172,84 @@ export class GitStore extends BaseStore {
    * Refreshes the list of GitHub Desktop created stash entries for the repository
    */
   public async loadStashEntries(): Promise<void> {
-    const map = new Map<string, IStashEntry>()
+    const map = new Map<string, Map<string, IStashEntry>>()
     const stash = await getStashes(this.repository)
 
-    for (const entry of stash.desktopEntries) {
-      // we only want the first entry we find for each branch,
-      // so we skip all subsequent ones
-      if (!map.has(entry.branchName)) {
-        const existing = this._desktopStashEntries.get(entry.branchName)
+    // we load the stashes for each branch
+    for (const entry of stash.allEntries) {
+      // we load the existing stashes for the branch
+      const branchMap = map.get(entry.branchName)
+      if (branchMap) {
+        branchMap.set(entry.stashSha, entry)
+      } else {
+        const stashMap = new Map<string, IStashEntry>()
 
-        // If we've already loaded the files for this stash there's
-        // no point in us doing it again. We know the contents haven't
-        // changed since the SHA is the same.
-        if (existing !== undefined && existing.stashSha === entry.stashSha) {
-          map.set(entry.branchName, { ...entry, files: existing.files })
-        } else {
-          map.set(entry.branchName, entry)
-        }
+        stashMap.set(entry.stashSha, entry)
+        map.set(entry.branchName, stashMap)
       }
     }
 
-    this._desktopStashEntries = map
+    this._stashEntries = map
+
     this._stashEntryCount = stash.stashEntryCount
+
+    const selectedStashEntry = this.currentBranchSelectedStashEntry
+
+    if (selectedStashEntry) {
+      const stashEntry = this._stashEntries
+        .get(selectedStashEntry?.branchName)
+        ?.get(selectedStashEntry.stashSha)
+      if (stashEntry) {
+        return this.setCurrentBranchSelectedStashEntry(stashEntry)
+      }
+    }
+
+    const stashEntry = this.currentBranchStashEntries?.values().next().value
+    if (stashEntry) {
+      this.setCurrentBranchSelectedStashEntry(stashEntry)
+    } else {
+      this.setCurrentBranchSelectedStashEntry(null)
+      log.error(
+        `[GitStore.loadStashEntries] no stash entry found for ${this.repository.name}`
+      )
+    }
+  }
+
+  /** The selected stash entry for the current branch. */
+  public get currentBranchSelectedStashEntry() {
+    if (this._selectedStashEntry) {
+      return this._selectedStashEntry
+    }
+
+    if (this._tip && this._tip.kind === TipState.Valid) {
+      return (
+        this._stashEntries.get(this._tip.branch.name)?.values().next().value ||
+        null
+      )
+    }
+    return null
+  }
+
+  /** Set the selected stash entry for the current branch. */
+  public async setCurrentBranchSelectedStashEntry(
+    stashEntry: IStashEntry | null
+  ) {
+    if (!stashEntry) {
+      this._selectedStashEntry = null
+      this.emitUpdate()
+      return
+    }
+    const updatedStashEntry = await this.loadFilesForStashEntry(stashEntry)
+    this._selectedStashEntry = updatedStashEntry
     this.emitUpdate()
-
-    this.loadFilesForCurrentStashEntry()
   }
 
-  /**
-   * A GitHub Desktop created stash entries for the current branch or
-   * null if no entry exists
-   */
-  public get currentBranchStashEntry() {
-    return this._tip && this._tip.kind === TipState.Valid
-      ? this._desktopStashEntries.get(this._tip.branch.name) || null
-      : null
-  }
-
-  public get desktopStashEntries(): ReadonlyMap<string, IStashEntry> {
-    return this._desktopStashEntries
+  /** All stash entries for the current branch. */
+  public get currentBranchStashEntries() {
+    if (this._tip && this._tip.kind === TipState.Valid) {
+      return this._stashEntries.get(this._tip.branch.name)
+    }
+    return null
   }
 
   /** The total number of stash entries */
@@ -1218,49 +1259,71 @@ export class GitStore extends BaseStore {
 
   /** The number of stash entries created by Desktop */
   public get desktopStashEntryCount(): number {
-    return this._desktopStashEntries.size
+    return this._stashEntries.size
   }
 
   /**
-   * Updates the latest stash entry with a list of files that it changes
+   * Updates the selected stash entry with a list of files that it changes
    */
-  private async loadFilesForCurrentStashEntry() {
-    const stashEntry = this.currentBranchStashEntry
-
+  private async loadFilesForStashEntry(
+    stashEntry: IStashEntry
+  ): Promise<IStashEntry> {
     if (
       !stashEntry ||
       stashEntry.files.kind !== StashedChangesLoadStates.NotLoaded
     ) {
-      return
+      return stashEntry
     }
 
     const { branchName } = stashEntry
 
-    this._desktopStashEntries.set(branchName, {
+    const loadingStashEntry: IStashEntry = {
       ...stashEntry,
       files: { kind: StashedChangesLoadStates.Loading },
-    })
+    }
+
+    // Update list of stash entries
+    this._stashEntries
+      .get(branchName)
+      ?.set(stashEntry.stashSha, loadingStashEntry)
+
+    // Update the selected stash entry
+    this._selectedStashEntry = loadingStashEntry
+
     this.emitUpdate()
 
     const files = await getStashedFiles(this.repository, stashEntry.stashSha)
 
     // It's possible that we've refreshed the list of stash entries since we
-    // started getStashedFiles. Load the latest entry for the branch and make
-    // sure the SHAs match up.
-    const currentEntry = this._desktopStashEntries.get(branchName)
+    // started getStashedFiles. Load the selected entry and make sure the
+    // SHAs match up.
+    const currentEntry = this._stashEntries
+      .get(branchName)
+      ?.get(stashEntry.stashSha)
 
-    if (!currentEntry || currentEntry.stashSha !== stashEntry.stashSha) {
-      return
+    if (!currentEntry) {
+      return stashEntry
     }
 
-    this._desktopStashEntries.set(branchName, {
+    const updatedStashEntry = {
       ...currentEntry,
       files: {
         kind: StashedChangesLoadStates.Loaded,
         files,
       },
-    })
+    }
+
+    // Update list of stash entries
+    this._stashEntries
+      .get(branchName)
+      ?.set(stashEntry.stashSha, updatedStashEntry)
+
+    // Also update the selected stash entry
+    this._selectedStashEntry = updatedStashEntry
+
     this.emitUpdate()
+
+    return updatedStashEntry
   }
 
   public async loadRemotes(): Promise<void> {

@@ -3,14 +3,12 @@ import { Dialog, DialogContent, DialogFooter } from '../dialog'
 import { Repository } from '../../models/repository'
 import { Dispatcher } from '../dispatcher'
 import { Row } from '../lib/row'
-import { IStashEntry } from '../../models/stash-entry'
 import { OkCancelButtonGroup } from '../dialog/ok-cancel-button-group'
 import { Checkbox, CheckboxValue } from '../lib/checkbox'
 
 interface IConfirmDiscardStashProps {
   readonly dispatcher: Dispatcher
   readonly repository: Repository
-  readonly stash: IStashEntry
   readonly askForConfirmationOnDiscardStash: boolean
   readonly onDismissed: () => void
 }
@@ -82,7 +80,7 @@ export class ConfirmDiscardStashDialog extends React.Component<
   }
 
   private onSubmit = async () => {
-    const { dispatcher, repository, stash, onDismissed } = this.props
+    const { dispatcher, repository, onDismissed } = this.props
 
     this.setState({
       isDiscarding: true,
@@ -90,7 +88,7 @@ export class ConfirmDiscardStashDialog extends React.Component<
 
     try {
       dispatcher.setConfirmDiscardStashSetting(this.state.confirmDiscardStash)
-      await dispatcher.dropStash(repository, stash)
+      await dispatcher.dropSelectedStash(repository)
     } finally {
       this.setState({
         isDiscarding: false,

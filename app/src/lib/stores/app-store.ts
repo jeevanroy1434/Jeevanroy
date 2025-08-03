@@ -352,6 +352,8 @@ import { BypassReasonType } from '../../ui/secret-scanning/bypass-push-protectio
 
 const LastSelectedRepositoryIDKey = 'last-selected-repository-id'
 
+const lastSelectedStashEntryKey = 'last-selected-stash-entry'
+
 const RecentRepositoriesKey = 'recently-selected-repositories'
 /**
  *  maximum number of repositories shown in the "Recent" repositories group
@@ -1181,7 +1183,10 @@ export class AppStore extends TypedBaseStore<IAppState> {
     let selectStashEntry = false
 
     this.repositoryStateCache.updateChangesState(repository, state => {
-      const stashEntry = gitStore.currentBranchStashEntry
+      const stashEntry = gitStore.currentBranchSelectedStashEntry
+      const stashEntries = gitStore.currentBranchStashEntries
+        ? Array.from(gitStore.currentBranchStashEntries.values())
+        : []
 
       // Figure out what selection changes we need to make as a result of this
       // change.
@@ -1204,6 +1209,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
         showCoAuthoredBy: gitStore.showCoAuthoredBy,
         coAuthors: gitStore.coAuthors,
         stashEntry,
+        stashEntries,
       }
     })
 
@@ -4389,7 +4395,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
     await gitStore.performFailableOperation(async () => {
       await renameBranch(repository, branch, newName)
 
-      const stashEntry = gitStore.desktopStashEntries.get(branch.name)
+      const stashEntry = gitStore.currentBranchSelectedStashEntry
 
       if (stashEntry) {
         await moveStashEntry(repository, stashEntry, newName)
@@ -7051,11 +7057,16 @@ export class AppStore extends TypedBaseStore<IAppState> {
   }
 
   /** This shouldn't be called directly. See `Dispatcher`. */
-  public async _dropStashEntry(
-    repository: Repository,
-    stashEntry: IStashEntry
-  ) {
+  public async _dropSelectedStashEntry(repository: Repository) {
     const gitStore = this.gitStoreCache.get(repository)
+    const stashEntry = gitStore.currentBranchSelectedStashEntry
+    if (!stashEntry) {
+      log.error(
+        `[AppStore. _dropSelectedStashEntry] no stash entry selected for ${repository.name}`
+      )
+      return
+    }
+
     await gitStore.performFailableOperation(() => {
       return dropDesktopStashEntry(repository, stashEntry.stashSha)
     })
@@ -7087,6 +7098,35 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.emitUpdate()
 
     return Promise.resolve()
+  }
+
+  /** This shouldn't be called directly. See `Dispatcher`. */
+  public _setSelectedStashEntry(repository: Repository, stashEntrySha: string) {
+    const gitStore = this.gitStoreCache.get(repository)
+    const stashEntries = gitStore.currentBranchStashEntries
+
+    // Check if the sha is in the stash entries for the current branch
+    const stashEntry = stashEntries?.get(stashEntrySha)
+    if (stashEntry === undefined) {
+      log.error(
+        `[AppStore. _setSelectedStashEntry] stash entry ${stashEntrySha} not found for ${repository.name}`
+      )
+      return
+    }
+
+    // Set the last selected stash entry for the current branch
+    const lastSelectedStashEntry =
+      getObject<Record<string, string>>(lastSelectedStashEntryKey) || {}
+    lastSelectedStashEntry[repository.id] = stashEntrySha
+    setObject(lastSelectedStashEntryKey, lastSelectedStashEntry)
+    log.info(
+      `[AppStore. _setSelectedStashEntry] set last selected stash entry for ${repository.name} to ${stashEntrySha}`
+    )
+
+    // Update value in git store & load files
+    gitStore.setCurrentBranchSelectedStashEntry(stashEntry)
+
+    // TODO: Local storage cleaner after removing a repository or branch
   }
 
   public async _testPruneBranches() {

@@ -5,9 +5,12 @@ import { Repository } from '../../models/repository'
 import { PopupType } from '../../models/popup'
 import { OkCancelButtonGroup } from '../dialog/ok-cancel-button-group'
 import { ErrorWithMetadata } from '../../lib/error-with-metadata'
+import { Select } from '../lib/select'
 
 interface IStashDiffHeaderProps {
   readonly stashEntry: IStashEntry
+  readonly stashEntries: ReadonlyArray<IStashEntry>
+  readonly onStashEntryChanged: (stashEntrySha: string) => void
   readonly repository: Repository
   readonly dispatcher: Dispatcher
   readonly askForConfirmationOnDiscardStash: boolean
@@ -35,12 +38,28 @@ export class StashDiffHeader extends React.Component<
     }
   }
 
+  private onStashEntryChanged = (event: React.FormEvent<HTMLSelectElement>) => {
+    this.props.onStashEntryChanged(event.currentTarget.value)
+  }
+
   public render() {
     const { isRestoring, isDiscarding } = this.state
 
     return (
       <div className="header">
         <h3>Stashed changes</h3>
+        <Select
+          value={this.props.stashEntry.stashSha}
+          onChange={this.onStashEntryChanged}
+        >
+          {this.props.stashEntries.map(stashEntry => {
+            return (
+              <option key={stashEntry.stashSha} value={stashEntry.stashSha}>
+                {stashEntry.name} ({stashEntry.stashSha})
+              </option>
+            )
+          })}
+        </Select>
         <div className="row">
           <OkCancelButtonGroup
             okButtonText="Restore"
@@ -76,7 +95,7 @@ export class StashDiffHeader extends React.Component<
       })
 
       try {
-        await dispatcher.dropStash(repository, stashEntry)
+        await dispatcher.dropSelectedStash(repository)
       } finally {
         this.setState({
           isDiscarding: false,
