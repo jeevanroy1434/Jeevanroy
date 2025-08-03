@@ -1182,6 +1182,9 @@ export class AppStore extends TypedBaseStore<IAppState> {
 
     this.repositoryStateCache.updateChangesState(repository, state => {
       const stashEntry = gitStore.currentBranchSelectedStashEntry
+      const stashEntries = gitStore.currentBranchStashEntries
+        ? Array.from(gitStore.currentBranchStashEntries.values())
+        : []
 
       // Figure out what selection changes we need to make as a result of this
       // change.
@@ -1204,6 +1207,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
         showCoAuthoredBy: gitStore.showCoAuthoredBy,
         coAuthors: gitStore.coAuthors,
         stashEntry,
+        stashEntries,
       }
     })
 

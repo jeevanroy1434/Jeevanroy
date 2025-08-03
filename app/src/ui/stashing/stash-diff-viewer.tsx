@@ -15,6 +15,9 @@ interface IStashDiffViewerProps {
   /** The stash in question. */
   readonly stashEntry: IStashEntry
 
+  /** All stash entries for the current branch. */
+  readonly stashEntries: ReadonlyArray<IStashEntry>
+
   /** Currently selected file in the list */
   readonly selectedStashedFile: CommittedFileChange | null
 
@@ -129,6 +132,7 @@ export class StashDiffViewer extends React.PureComponent<IStashDiffViewerProps> 
       <section id={StashDiffViewerId}>
         <StashDiffHeader
           stashEntry={stashEntry}
+          stashEntries={this.props.stashEntries}
           repository={repository}
           dispatcher={dispatcher}
           askForConfirmationOnDiscardStash={
