@@ -1194,7 +1194,10 @@ export class GitStore extends BaseStore {
     this._stashEntryCount = stash.stashEntryCount
     this.emitUpdate()
 
-    this.loadFilesForSelectedStashEntry()
+    const stashEntry = this.currentBranchSelectedStashEntry
+    if (stashEntry) {
+      this.setCurrentBranchSelectedStashEntry(stashEntry)
+    }
   }
 
   /** The selected stash entry for the current branch. */
@@ -1213,9 +1216,10 @@ export class GitStore extends BaseStore {
   }
 
   /** Set the selected stash entry for the current branch. */
-  public setCurrentBranchSelectedStashEntry(stashEntry: IStashEntry) {
-    this._selectedStashEntry = stashEntry
-    this.loadFilesForSelectedStashEntry()
+  public async setCurrentBranchSelectedStashEntry(stashEntry: IStashEntry) {
+    const updatedStashEntry = await this.loadFilesForStashEntry(stashEntry)
+    this._selectedStashEntry = updatedStashEntry
+    this.emitUpdate()
   }
 
   /** All stash entries for the current branch. */
@@ -1239,22 +1243,31 @@ export class GitStore extends BaseStore {
   /**
    * Updates the selected stash entry with a list of files that it changes
    */
-  private async loadFilesForSelectedStashEntry() {
-    const stashEntry = this.currentBranchSelectedStashEntry
-
+  private async loadFilesForStashEntry(
+    stashEntry: IStashEntry
+  ): Promise<IStashEntry> {
     if (
       !stashEntry ||
       stashEntry.files.kind !== StashedChangesLoadStates.NotLoaded
     ) {
-      return
+      return stashEntry
     }
 
     const { branchName } = stashEntry
 
-    this._stashEntries.get(branchName)?.set(stashEntry.stashSha, {
+    const loadingStashEntry: IStashEntry = {
       ...stashEntry,
       files: { kind: StashedChangesLoadStates.Loading },
-    })
+    }
+
+    // Update list of stash entries
+    this._stashEntries
+      .get(branchName)
+      ?.set(stashEntry.stashSha, loadingStashEntry)
+
+    // Update the selected stash entry
+    this._selectedStashEntry = loadingStashEntry
+
     this.emitUpdate()
 
     const files = await getStashedFiles(this.repository, stashEntry.stashSha)
@@ -1267,18 +1280,28 @@ export class GitStore extends BaseStore {
       ?.get(stashEntry.stashSha)
 
     if (!currentEntry) {
-      return
+      return stashEntry
     }
 
-    this._stashEntries.get(branchName)?.set(stashEntry.stashSha, {
+    const updatedStashEntry = {
       ...currentEntry,
       files: {
         kind: StashedChangesLoadStates.Loaded,
         files,
       },
-    })
+    }
+
+    // Update list of stash entries
+    this._stashEntries
+      .get(branchName)
+      ?.set(stashEntry.stashSha, updatedStashEntry)
+
+    // Also update the selected stash entry
+    this._selectedStashEntry = updatedStashEntry
 
     this.emitUpdate()
+
+    return updatedStashEntry
   }
 
   public async loadRemotes(): Promise<void> {

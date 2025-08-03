@@ -352,6 +352,8 @@ import { BypassReasonType } from '../../ui/secret-scanning/bypass-push-protectio
 
 const LastSelectedRepositoryIDKey = 'last-selected-repository-id'
 
+const lastSelectedStashEntryKey = 'last-selected-stash-entry'
+
 const RecentRepositoriesKey = 'recently-selected-repositories'
 /**
  *  maximum number of repositories shown in the "Recent" repositories group
@@ -7091,6 +7093,35 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.emitUpdate()
 
     return Promise.resolve()
+  }
+
+  /** This shouldn't be called directly. See `Dispatcher`. */
+  public _setSelectedStashEntry(repository: Repository, stashEntrySha: string) {
+    const gitStore = this.gitStoreCache.get(repository)
+    const stashEntries = gitStore.currentBranchStashEntries
+
+    // Check if the sha is in the stash entries for the current branch
+    const stashEntry = stashEntries?.get(stashEntrySha)
+    if (stashEntry === undefined) {
+      log.error(
+        `[AppStore. _setSelectedStashEntry] stash entry ${stashEntrySha} not found for ${repository.name}`
+      )
+      return
+    }
+
+    // Set the last selected stash entry for the current branch
+    const lastSelectedStashEntry =
+      getObject<Record<string, string>>(lastSelectedStashEntryKey) || {}
+    lastSelectedStashEntry[repository.id] = stashEntrySha
+    setObject(lastSelectedStashEntryKey, lastSelectedStashEntry)
+    log.info(
+      `[AppStore. _setSelectedStashEntry] set last selected stash entry for ${repository.name} to ${stashEntrySha}`
+    )
+
+    // Update value in git store & load files
+    gitStore.setCurrentBranchSelectedStashEntry(stashEntry)
+
+    // TODO: Local storage cleaner after removing a repository or branch
   }
 
   public async _testPruneBranches() {

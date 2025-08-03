@@ -2681,6 +2681,11 @@ export class Dispatcher {
     return this.appStore._resetStashedFilesWidth()
   }
 
+  /** Set the selected stash entry for the given repository */
+  public setSelectedStashEntry(repository: Repository, stashEntrySha: string) {
+    return this.appStore._setSelectedStashEntry(repository, stashEntrySha)
+  }
+
   /** Hide the diff for stashed changes */
   public hideStashedChanges(repository: Repository) {
     return this.appStore._hideStashedChanges(repository)

@@ -10,6 +10,7 @@ import { Select } from '../lib/select'
 interface IStashDiffHeaderProps {
   readonly stashEntry: IStashEntry
   readonly stashEntries: ReadonlyArray<IStashEntry>
+  readonly onStashEntryChanged: (stashEntrySha: string) => void
   readonly repository: Repository
   readonly dispatcher: Dispatcher
   readonly askForConfirmationOnDiscardStash: boolean
@@ -37,6 +38,10 @@ export class StashDiffHeader extends React.Component<
     }
   }
 
+  private onStashEntryChanged = (event: React.FormEvent<HTMLSelectElement>) => {
+    this.props.onStashEntryChanged(event.currentTarget.value)
+  }
+
   public render() {
     const { isRestoring, isDiscarding } = this.state
 
@@ -45,6 +50,7 @@ export class StashDiffHeader extends React.Component<
         <h3>Stashed changes</h3>
         <Select
           value={this.props.stashEntry.stashSha}
+          onChange={this.onStashEntryChanged}
         >
           {this.props.stashEntries.map(stashEntry => {
             return (

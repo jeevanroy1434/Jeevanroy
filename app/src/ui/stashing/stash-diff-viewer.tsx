@@ -91,6 +91,13 @@ export class StashDiffViewer extends React.PureComponent<IStashDiffViewerProps> 
       ? this.props.stashEntry.files.files
       : new Array<CommittedFileChange>()
 
+  private onStashEntryChanged = (stashEntrySha: string) => {
+    this.props.dispatcher.setSelectedStashEntry(
+      this.props.repository,
+      stashEntrySha
+    )
+  }
+
   public render() {
     const {
       stashEntry,
@@ -133,6 +140,7 @@ export class StashDiffViewer extends React.PureComponent<IStashDiffViewerProps> 
         <StashDiffHeader
           stashEntry={stashEntry}
           stashEntries={this.props.stashEntries}
+          onStashEntryChanged={this.onStashEntryChanged}
           repository={repository}
           dispatcher={dispatcher}
           askForConfirmationOnDiscardStash={
