@@ -1,5 +1,4 @@
 import * as Path from 'path'
-import { join } from 'path'
 
 import { getBlobContents } from './show'
 import { isTrackedByLFS } from './lfs'
@@ -394,7 +393,10 @@ export async function getWorkingDirectoryDiff(
     args,
     repository.path,
     'getWorkingDirectoryDiff',
-    { successExitCodes, encoding: 'buffer' }
+    {
+      successExitCodes,
+      encoding: 'buffer',
+    }
   )
   const lineEndingsChange = parseLineEndingsWarning(stderr)
 
@@ -623,7 +625,10 @@ function parseLineEndingsWarning(error: Buffer): LineEndingsChange | undefined {
     const from = parseLineEndingText(match[1])
     const to = parseLineEndingText(match[2])
     if (from && to) {
-      return { from, to }
+      return {
+        from,
+        to,
+      }
     }
   }
 
@@ -764,6 +769,7 @@ export async function getBlobImage(
     contents.length
   )
 }
+
 /**
  * Retrieve the binary contents of a blob from the working directory
  *
@@ -848,67 +854,14 @@ async function getFilesUsingBinaryMergeDriver(
     }
   )
 
-  return createLogParser({ path: '', attr: '', value: '' })
+  return createLogParser({
+    path: '',
+    attr: '',
+    value: '',
+  })
     .parse(stdout)
     .filter(x => x.attr === 'merge' && x.value === 'binary')
     .map(x => x.path)
-}
-
-/**
- * Detects if a file content represents an LFS pointer file
- * LFS pointer files have a specific format:
- * version https://git-lfs.github.com/spec/v1
- * oid sha256:<hash>
- * size <number>
- *
- * This function also detects LFS pointers with conflict markers
- */
-function isLFSPointer(content: string): boolean {
-  const lines = content.trim().split('\n')
-
-  // First check for a regular LFS pointer (no conflict markers)
-  if (lines.length >= 3) {
-    if (
-      lines[0].startsWith('version https://git-lfs.github.com/spec/v') &&
-      lines[1].startsWith('oid sha256:') &&
-      lines[2].startsWith('size ')
-    ) {
-      const sizeStr = lines[2].substring(5)
-      const size = parseInt(sizeStr, 10)
-      if (!isNaN(size) && size >= 0) {
-        return true
-      }
-    }
-  }
-
-  // Check for LFS pointer with conflict markers
-  // Look for the LFS version string anywhere in the file
-  const hasLFSVersion = lines.some(line =>
-    line.includes('version https://git-lfs.github.com/spec/v')
-  )
-
-  if (!hasLFSVersion) {
-    return false
-  }
-
-  // If we find the LFS version, check if there are also conflict markers
-  const hasConflictMarkers = lines.some(
-    line =>
-      line.startsWith('<<<<<<<') ||
-      line.startsWith('=======') ||
-      line.startsWith('>>>>>>>')
-  )
-
-  // If there are conflict markers and LFS version, it's likely a conflicted LFS file
-  if (hasConflictMarkers) {
-    // Also check for oid lines to be more certain
-    const hasOidLine = lines.some(line => line.includes('oid sha256:'))
-    const hasSizeLine = lines.some(line => line.includes('size '))
-
-    return hasOidLine && hasSizeLine
-  }
-
-  return false
 }
 
 /**
@@ -923,24 +876,10 @@ async function getConflictedLFSFiles(
 
   // Check each conflicted file to see if it's tracked by LFS
   for (const file of conflictedFiles) {
-    try {
-      // First check if the file is tracked by LFS according to .gitattributes
-      const isLFS = await isTrackedByLFS(repository, file.path)
-
-      if (isLFS) {
-        lfsFiles.push(file.path)
-      } else {
-        // If not marked as LFS in .gitattributes, check if the file content
-        // looks like an LFS pointer (in case of conflicted LFS pointers)
-        const filePath = join(repository.path, file.path)
-        const content = await readFile(filePath, 'utf8')
-
-        if (isLFSPointer(content)) {
-          lfsFiles.push(file.path)
-        }
-      }
-    } catch {
-      // If we can't read the file, skip it
+    // Check if the file is tracked by LFS according to .gitattributes
+    const isLFS = await isTrackedByLFS(repository, file.path)
+    if (isLFS) {
+      lfsFiles.push(file.path)
     }
   }
 
