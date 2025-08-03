@@ -15,6 +15,9 @@ export interface IStashEntry {
 
   readonly tree: string
   readonly parents: ReadonlyArray<string>
+
+  /** Whether the stash entry was created by GitHub Desktop */
+  readonly isGitHubDesktop: boolean
 }
 
 /** Whether file changes for a stash entry are loaded or not */

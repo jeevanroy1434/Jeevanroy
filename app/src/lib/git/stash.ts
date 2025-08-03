@@ -26,11 +26,8 @@ export const DesktopStashEntryMarker = '!!GitHub_Desktop'
 const desktopStashEntryMessageRe = /!!GitHub_Desktop<(.+)>$/
 
 type StashResult = {
-  /** The stash entries created by Desktop */
-  readonly desktopEntries: ReadonlyArray<IStashEntry>
-
-  /** The stash entries created by other tools */
-  readonly otherStashes: ReadonlyArray<IStashEntry>
+  /** The stash entries created by Desktop and other tools */
+  readonly allEntries: ReadonlyArray<IStashEntry>
 
   /**
    * The total amount of stash entries,
@@ -63,11 +60,10 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
   // There's no refs/stashes reflog in the repository or it's not
   // even a repository. In either case we don't care
   if (result.exitCode === 128) {
-    return { desktopEntries: [], otherStashes: [], stashEntryCount: 0 }
+    return { allEntries: [], stashEntryCount: 0 }
   }
 
-  const desktopEntries: Array<IStashEntry> = []
-  const otherStashes: Array<IStashEntry> = []
+  const allEntries: Array<IStashEntry> = []
   const files: StashedFileChanges = { kind: StashedChangesLoadStates.NotLoaded }
 
   const entries = parse(result.stdout)
@@ -81,30 +77,19 @@ export async function getStashes(repository: Repository): Promise<StashResult> {
     const gitHubDesktopBranchName = extractBranchFromMessage(message)
     const branchName = gitHubDesktopBranchName || name
 
-    if (gitHubDesktopBranchName !== null) {
-      desktopEntries.push({
-        name,
-        stashSha,
-        branchName,
-        tree,
-        parents: parents.length > 0 ? parents.split(' ') : [],
-        files,
-      })
-    } else {
-      otherStashes.push({
-        name,
-        stashSha,
-        branchName: name,
-        tree,
-        parents: parents.length > 0 ? parents.split(' ') : [],
-        files,
-      })
-    }
+    allEntries.push({
+      name,
+      stashSha,
+      branchName,
+      tree,
+      parents: parents.length > 0 ? parents.split(' ') : [],
+      files,
+      isGitHubDesktop: !!gitHubDesktopBranchName,
+    })
   }
 
   return {
-    desktopEntries,
-    otherStashes,
+    allEntries,
     stashEntryCount: entries.length - 1,
   }
 }
@@ -150,7 +135,9 @@ export async function getLastDesktopStashEntryForBranch(
   // Since stash objects are returned in a LIFO manner, the first
   // entry found is guaranteed to be the last entry created
   return (
-    stash.desktopEntries.find(stash => stash.branchName === branchName) || null
+    stash.allEntries.find(
+      stash => stash.branchName === branchName && stash.isGitHubDesktop
+    ) || null
   )
 }
 
@@ -230,7 +217,7 @@ export async function createDesktopStashEntry(
 
 async function getStashEntryMatchingSha(repository: Repository, sha: string) {
   const stash = await getStashes(repository)
-  return stash.desktopEntries.find(e => e.stashSha === sha) || null
+  return stash.allEntries.find(e => e.stashSha === sha) || null
 }
 
 /**
