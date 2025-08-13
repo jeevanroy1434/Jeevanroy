@@ -5,6 +5,7 @@ import { WorkingDirectoryFileChange } from '../../models/status'
 import { unstageAll } from './reset'
 import { ManualConflictResolution } from '../../models/manual-conflict-resolution'
 import { stageManualConflictResolution } from './stage'
+import { getConfigValue } from './config'
 
 /**
  * @param repository repository to execute merge in
@@ -29,6 +30,11 @@ export async function createCommit(
 
   if (amend) {
     args.push('--amend')
+  }
+
+  const skipHooks = await getConfigValue(repository, 'commit.skipHooks', true)
+  if (skipHooks === 'true') {
+    args.push('--no-verify')
   }
 
   const result = await git(
