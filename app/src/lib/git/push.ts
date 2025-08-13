@@ -5,6 +5,7 @@ import { PushProgressParser, executionOptionsWithProgress } from '../progress'
 import { IRemote } from '../../models/remote'
 import { envForRemoteOperation } from './environment'
 import { Branch } from '../../models/branch'
+import { getConfigValue } from './config'
 
 export type PushOptions = {
   /**
@@ -67,6 +68,11 @@ export async function push(
     args.push('--set-upstream')
   } else if (options.forceWithLease === true) {
     args.push('--force-with-lease')
+  }
+
+  const skipHooks = await getConfigValue(repository, 'commit.skipHooks', true)
+  if (skipHooks === 'true') {
+    args.push('--no-verify')
   }
 
   let opts: IGitStringExecutionOptions = {
