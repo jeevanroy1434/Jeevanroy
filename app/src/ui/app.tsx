@@ -1228,6 +1228,26 @@ export class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
+  private pinRepository = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!repository || repository instanceof CloningRepository) {
+      return
+    }
+
+    this.props.dispatcher.pinRepository(repository)
+  }
+
+  private unpinRepository = (
+    repository: Repository | CloningRepository | null
+  ) => {
+    if (!repository || repository instanceof CloningRepository) {
+      return
+    }
+
+    this.props.dispatcher.unpinRepository(repository)
+  }
+
   private onConfirmRepoRemoval = async (
     repository: Repository,
     deleteRepoFromDisk: boolean
@@ -2876,11 +2896,14 @@ export class App extends React.Component<IAppProps, IAppState> {
         onSelectionChanged={this.onSelectionChanged}
         repositories={this.state.repositories}
         recentRepositories={this.state.recentRepositories}
+        pinnedRepositories={this.state.pinnedRepositories}
         localRepositoryStateLookup={this.state.localRepositoryStateLookup}
         askForConfirmationOnRemoveRepository={
           this.state.askForConfirmationOnRepositoryRemoval
         }
         onRemoveRepository={this.removeRepository}
+        onPinRepository={this.pinRepository}
+        onUnpinRepository={this.unpinRepository}
         onViewOnGitHub={this.viewOnGitHub}
         onOpenInShell={this.openInShell}
         onShowRepository={this.showRepository}
@@ -3057,6 +3080,9 @@ export class App extends React.Component<IAppProps, IAppState> {
       onChangeRepositoryAlias: onChangeRepositoryAlias,
       onRemoveRepositoryAlias: onRemoveRepositoryAlias,
       onViewOnGitHub: this.viewOnGitHub,
+      pinnedRepositories: this.state.pinnedRepositories,
+      onPinRepository: this.pinRepository,
+      onUnpinRepository: this.unpinRepository,
       repository: repository,
       shellLabel: this.state.useCustomShell
         ? undefined

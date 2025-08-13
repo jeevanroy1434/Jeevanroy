@@ -34,7 +34,8 @@
     // name and truncate accordingly
     width: 100%;
 
-    .icon-for-repository {
+    .icon-for-repository,
+    .pinned-icon {
       // Some room between the icon and repository name
       margin-right: var(--spacing-half);
 

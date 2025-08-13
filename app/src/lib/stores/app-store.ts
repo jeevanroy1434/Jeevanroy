@@ -359,6 +359,8 @@ const RecentRepositoriesKey = 'recently-selected-repositories'
  */
 const RecentRepositoriesLength = 3
 
+const PinnedRepositoriesKey = 'pinned-repositories'
+
 const defaultSidebarWidth: number = 250
 const sidebarWidthConfigKey: string = 'sidebar-width'
 
@@ -468,6 +470,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
   private accounts: ReadonlyArray<Account> = new Array<Account>()
   private repositories: ReadonlyArray<Repository> = new Array<Repository>()
   private recentRepositories: ReadonlyArray<number> = new Array<number>()
+  private pinnedRepositories: ReadonlyArray<number> = new Array<number>()
 
   private selectedRepository: Repository | CloningRepository | null = null
 
@@ -1035,6 +1038,7 @@ export class AppStore extends TypedBaseStore<IAppState> {
       accounts: this.accounts,
       repositories,
       recentRepositories: this.recentRepositories,
+      pinnedRepositories: this.pinnedRepositories,
       localRepositoryStateLookup: this.localRepositoryStateLookup,
       windowState: this.windowState,
       windowZoomFactor: this.windowZoomFactor,
@@ -2358,6 +2362,8 @@ export class AppStore extends TypedBaseStore<IAppState> {
     this.accountsStore.refresh()
 
     this.updateMenuLabelsForSelectedRepository()
+
+    this.pinnedRepositories = getNumberArray(PinnedRepositoriesKey)
   }
 
   /**
@@ -6394,6 +6400,24 @@ export class AppStore extends TypedBaseStore<IAppState> {
     } else {
       this._showFoldout({ type: FoldoutType.Repository })
     }
+  }
+
+  public async _pinRepository(repository: Repository): Promise<void> {
+    const pinnedRepositories = getNumberArray(PinnedRepositoriesKey)
+    this.pinnedRepositories = pinnedRepositories.concat([repository.id])
+
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
+  }
+
+  public async _unpinRepository(repository: Repository): Promise<void> {
+    const pinnedRepositories = getNumberArray(PinnedRepositoriesKey)
+    this.pinnedRepositories = pinnedRepositories.filter(
+      r => r !== repository.id
+    )
+
+    setNumberArray(PinnedRepositoriesKey, this.pinnedRepositories)
+    this.emitUpdate()
   }
 
   public async _cloneAgain(url: string, path: string): Promise<void> {

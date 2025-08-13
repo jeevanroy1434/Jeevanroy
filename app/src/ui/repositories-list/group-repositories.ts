@@ -17,7 +17,7 @@ import { enableMultipleEnterpriseAccounts } from '../../lib/feature-flag'
 
 export type RepositoryListGroup =
   | {
-      kind: 'recent' | 'other'
+      kind: 'recent' | 'other' | 'pinned'
     }
   | {
       kind: 'dotcom'
@@ -36,16 +36,18 @@ export type RepositoryListGroup =
 export const getGroupKey = (group: RepositoryListGroup) => {
   const { kind } = group
   switch (kind) {
+    case 'pinned':
+      return `0:pinned`
     case 'recent':
-      return `0:recent`
+      return `1:recent`
     case 'dotcom':
-      return `1:dotcom:${group.owner.login}`
+      return `2:dotcom:${group.owner.login}`
     case 'enterprise':
       return enableMultipleEnterpriseAccounts()
-        ? `2:enterprise:${group.host}`
-        : `2:enterprise`
+        ? `3:enterprise:${group.host}`
+        : `3:enterprise`
     case 'other':
-      return `3:other`
+      return `4:other`
     default:
       assertNever(group, `Unknown repository group kind ${kind}`)
   }
@@ -80,10 +82,12 @@ type RepoGroupItem = { group: RepositoryListGroup; repos: Repositoryish[] }
 export function groupRepositories(
   repositories: ReadonlyArray<Repositoryish>,
   localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-  recentRepositories: ReadonlyArray<number>
+  recentRepositories: ReadonlyArray<number>,
+  pinnedRepositories: ReadonlyArray<number>
 ): ReadonlyArray<IFilterListGroup<IRepositoryListItem, RepositoryListGroup>> {
   const includeRecentGroup = repositories.length > recentRepositoriesThreshold
   const recentSet = includeRecentGroup ? new Set(recentRepositories) : undefined
+  const pinnedSet = new Set(pinnedRepositories)
   const groups = new Map<string, RepoGroupItem>()
 
   const addToGroup = (group: RepositoryListGroup, repo: Repositoryish) => {
@@ -100,6 +104,10 @@ export function groupRepositories(
   for (const repo of repositories) {
     if (recentSet?.has(repo.id) && repo instanceof Repository) {
       addToGroup({ kind: 'recent' }, repo)
+    }
+
+    if (pinnedSet.has(repo.id) && repo instanceof Repository) {
+      addToGroup({ kind: 'pinned' }, repo)
     }
 
     addToGroup(getGroupForRepository(repo), repo)
@@ -133,9 +141,12 @@ const toSortedListItems = (
   const allNames = new Map<string, number>()
 
   for (const groupItem of groups.values()) {
-    // All items in the recent group are by definition present in another
+    // All items in the recent or pinned group are by definition present in another
     // group and therefore we don't want to count them.
-    if (groupItem.group.kind === 'recent') {
+    if (
+      groupItem.group.kind === 'recent' ||
+      groupItem.group.kind === 'pinned'
+    ) {
       continue
     }
 
@@ -161,10 +172,11 @@ const toSortedListItems = (
           // name in the group, we need to disambiguate it. We don't have to
           // disambiguate repositories in the 'dotcom' group because they are
           // already grouped by owner. If the repository is in the 'recent'
-          // group and has a duplicate name in any group, we need to
-          // disambiguate it.
+          // or 'pinned' group and has a duplicate name in any group, we need
+          // to disambiguate it.
           ((groupNames.get(title) ?? 0) > 1 && group.kind === 'enterprise') ||
-          ((allNames.get(title) ?? 0) > 1 && group.kind === 'recent'),
+          ((allNames.get(title) ?? 0) > 1 &&
+            (group.kind === 'recent' || group.kind === 'pinned')),
         aheadBehind: repoState?.aheadBehind ?? null,
         changedFilesCount: repoState?.changedFilesCount ?? 0,
       }
