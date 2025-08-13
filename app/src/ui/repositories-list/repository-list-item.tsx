@@ -56,8 +56,6 @@ export class RepositoryListItem extends React.Component<
 
     return (
       <div className="repository-list-item" ref={this.listItemRef}>
-        <Tooltip target={this.listItemRef}>{this.renderTooltip()}</Tooltip>
-
         {this.props.inPinnedList && (
           <Octicon className="pinned-icon" symbol={octicons.pin} />
         )}
