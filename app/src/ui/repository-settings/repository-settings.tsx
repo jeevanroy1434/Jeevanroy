@@ -66,6 +66,7 @@ interface IRepositorySettingsState {
   readonly errors?: ReadonlyArray<JSX.Element | string>
   readonly forkContributionTarget: ForkContributionTarget
   readonly isLoadingGitConfig: boolean
+  readonly skipGitHooks: boolean
 }
 
 export class RepositorySettings extends React.Component<
@@ -93,6 +94,7 @@ export class RepositorySettings extends React.Component<
       initialCommitterName: null,
       initialCommitterEmail: null,
       isLoadingGitConfig: true,
+      skipGitHooks: false,
     }
   }
 
@@ -116,6 +118,12 @@ export class RepositorySettings extends React.Component<
     const localCommitterEmail = await getConfigValue(
       this.props.repository,
       'user.email',
+      true
+    )
+
+    const skipHooks = await getConfigValue(
+      this.props.repository,
+      'commit.skipHooks',
       true
     )
 
@@ -146,6 +154,7 @@ export class RepositorySettings extends React.Component<
       initialCommitterName: localCommitterName,
       initialCommitterEmail: localCommitterEmail,
       isLoadingGitConfig: false,
+      skipGitHooks: skipHooks === 'true',
     })
   }
 
@@ -269,6 +278,8 @@ export class RepositorySettings extends React.Component<
             onNameChanged={this.onCommitterNameChanged}
             onEmailChanged={this.onCommitterEmailChanged}
             isLoadingGitConfig={this.state.isLoadingGitConfig}
+            skipGitHooks={this.state.skipGitHooks}
+            onSkipGitHooksChanged={this.onSkipGitHooksChanged}
           />
         )
       }
@@ -377,6 +388,12 @@ export class RepositorySettings extends React.Component<
       }
     }
 
+    await setConfigValue(
+      this.props.repository,
+      'commit.skipHooks',
+      this.state.skipGitHooks ? 'true' : 'false'
+    )
+
     if (shouldRefreshAuthor) {
       this.props.dispatcher.refreshAuthor(this.props.repository)
     }
@@ -434,5 +451,10 @@ export class RepositorySettings extends React.Component<
 
   private onCommitterEmailChanged = (committerEmail: string) => {
     this.setState({ committerEmail })
+  }
+
+  private onSkipGitHooksChanged = (checked: boolean) => {
+    console.log('onSkipGitHooksChanged', checked)
+    this.setState({ skipGitHooks: checked })
   }
 }

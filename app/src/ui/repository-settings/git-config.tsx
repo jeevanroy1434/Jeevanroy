@@ -6,6 +6,7 @@ import { Row } from '../lib/row'
 import { RadioGroup } from '../lib/radio-group'
 import { assertNever } from '../../lib/fatal-error'
 import memoizeOne from 'memoize-one'
+import { Checkbox, CheckboxValue } from '../lib/checkbox'
 
 interface IGitConfigProps {
   readonly account: Account | null
@@ -16,10 +17,12 @@ interface IGitConfigProps {
   readonly globalName: string
   readonly globalEmail: string
   readonly isLoadingGitConfig: boolean
+  readonly skipGitHooks: boolean
 
   readonly onGitConfigLocationChanged: (value: GitConfigLocation) => void
   readonly onNameChanged: (name: string) => void
   readonly onEmailChanged: (email: string) => void
+  readonly onSkipGitHooksChanged: (checked: boolean) => void
 }
 
 export enum GitConfigLocation {
@@ -37,6 +40,13 @@ export class GitConfig extends React.Component<IGitConfigProps> {
   private onGitConfigLocationChanged = (value: GitConfigLocation) => {
     this.props.onGitConfigLocationChanged(value)
   }
+
+  private onSkipGitHooksChanged = (
+    event: React.FormEvent<HTMLInputElement>
+  ) => {
+    this.props.onSkipGitHooksChanged(event.currentTarget.checked)
+  }
+
   private renderConfigOptionLabel = (key: GitConfigLocation) => {
     switch (key) {
       case GitConfigLocation.Global:
@@ -83,6 +93,14 @@ export class GitConfig extends React.Component<IGitConfigProps> {
             onEmailChanged={this.props.onEmailChanged}
             onNameChanged={this.props.onNameChanged}
             isLoadingGitConfig={this.props.isLoadingGitConfig}
+          />
+          <Checkbox
+            className="skip-git-hooks-checkbox"
+            label="Skip Git hooks for commits and pushes in this repository"
+            value={
+              this.props.skipGitHooks ? CheckboxValue.On : CheckboxValue.Off
+            }
+            onChange={this.onSkipGitHooksChanged}
           />
         </div>
       </DialogContent>
