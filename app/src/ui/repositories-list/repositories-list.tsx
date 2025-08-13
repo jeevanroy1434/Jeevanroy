@@ -33,6 +33,7 @@ interface IRepositoriesListProps {
   readonly selectedRepository: Repositoryish | null
   readonly repositories: ReadonlyArray<Repositoryish>
   readonly recentRepositories: ReadonlyArray<number>
+  readonly pinnedRepositories: ReadonlyArray<number>
 
   /** A cache of the latest repository state values, keyed by the repository id */
   readonly localRepositoryStateLookup: ReadonlyMap<
@@ -51,6 +52,12 @@ interface IRepositoriesListProps {
 
   /** Called when the repository should be shown in Finder/Explorer/File Manager. */
   readonly onShowRepository: (repository: Repositoryish) => void
+
+  /** Called when the repository should be pinned. */
+  readonly onPinRepository: (repository: Repositoryish) => void
+
+  /** Called when the repository should be unpinned. */
+  readonly onUnpinRepository: (repository: Repositoryish) => void
 
   /** Called when the repository should be opened on GitHub in the default web browser. */
   readonly onViewOnGitHub: (repository: Repositoryish) => void
@@ -121,14 +128,16 @@ export class RepositoriesList extends React.Component<
     (
       repositories: ReadonlyArray<Repositoryish> | null,
       localRepositoryStateLookup: ReadonlyMap<number, ILocalRepositoryState>,
-      recentRepositories: ReadonlyArray<number>
+      recentRepositories: ReadonlyArray<number>,
+      pinnedRepositories: ReadonlyArray<number>
     ) =>
       repositories === null
         ? []
         : groupRepositories(
             repositories,
             localRepositoryStateLookup,
-            recentRepositories
+            recentRepositories,
+            pinnedRepositories
           )
   )
 
@@ -152,18 +161,34 @@ export class RepositoriesList extends React.Component<
     }
   }
 
-  private renderItem = (item: IRepositoryListItem, matches: IMatches) => {
-    const repository = item.repository
-    return (
-      <RepositoryListItem
-        key={repository.id}
-        repository={repository}
-        needsDisambiguation={item.needsDisambiguation}
-        matches={matches}
-        aheadBehind={item.aheadBehind}
-        changedFilesCount={item.changedFilesCount}
-      />
-    )
+  private getRenderItem(
+    groups: ReadonlyArray<
+      IFilterListGroup<IRepositoryListItem, RepositoryListGroup>
+    >
+  ) {
+    const pinnedGroup = groups.find(rg => rg.identifier.kind === 'pinned')
+
+    return (item: IRepositoryListItem, matches: IMatches) => {
+      const repository = item.repository
+      return (
+        <RepositoryListItem
+          key={repository.id}
+          repository={repository}
+          needsDisambiguation={item.needsDisambiguation}
+          matches={matches}
+          aheadBehind={item.aheadBehind}
+          changedFilesCount={item.changedFilesCount}
+          inPinnedList={
+            pinnedGroup !== undefined &&
+            // Don't compare the repo ID since there will be multiple instances
+            // of a repo list item (recent group, dotcom group, etc.). We care
+            // about the exact instance of the repo list item in the pinned
+            // group, not the ID.
+            pinnedGroup.items.filter(repo => repo === item).length > 0
+          }
+        />
+      )
+    }
   }
 
   private getGroupLabel(group: RepositoryListGroup) {
@@ -176,6 +201,8 @@ export class RepositoriesList extends React.Component<
       return group.owner.login
     } else if (kind === 'recent') {
       return 'Recent'
+    } else if (kind === 'pinned') {
+      return 'Pinned'
     } else {
       assertNever(kind, `Unknown repository group kind ${kind}`)
     }
@@ -224,6 +251,9 @@ export class RepositoriesList extends React.Component<
       onChangeRepositoryAlias: this.onChangeRepositoryAlias,
       onRemoveRepositoryAlias: this.onRemoveRepositoryAlias,
       onViewOnGitHub: this.props.onViewOnGitHub,
+      onPinRepository: this.props.onPinRepository,
+      onUnpinRepository: this.props.onUnpinRepository,
+      pinnedRepositories: this.props.pinnedRepositories,
       repository: item.repository,
       shellLabel: this.props.shellLabel,
     })
@@ -245,7 +275,8 @@ export class RepositoriesList extends React.Component<
     const groups = this.getRepositoryGroups(
       this.props.repositories,
       this.props.localRepositoryStateLookup,
-      this.props.recentRepositories
+      this.props.recentRepositories,
+      this.props.pinnedRepositories
     )
 
     // So there's two types of selection at play here. There's the repository
@@ -264,7 +295,7 @@ export class RepositoriesList extends React.Component<
           selectedItem={selectedItem}
           filterText={this.props.filterText}
           onFilterTextChanged={this.props.onFilterTextChanged}
-          renderItem={this.renderItem}
+          renderItem={this.getRenderItem(groups)}
           renderGroupHeader={this.renderGroupHeader}
           onItemClick={this.onItemClick}
           renderPostFilter={this.renderPostFilter}

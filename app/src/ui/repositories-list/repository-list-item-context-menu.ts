@@ -13,6 +13,7 @@ interface IRepositoryListItemContextMenuConfig {
   shellLabel: string | undefined
   externalEditorLabel: string | undefined
   askForConfirmationOnRemoveRepository: boolean
+  pinnedRepositories: ReadonlyArray<number>
   onViewOnGitHub: (repository: Repositoryish) => void
   onOpenInShell: (repository: Repositoryish) => void
   onShowRepository: (repository: Repositoryish) => void
@@ -20,6 +21,8 @@ interface IRepositoryListItemContextMenuConfig {
   onRemoveRepository: (repository: Repositoryish) => void
   onChangeRepositoryAlias: (repository: Repository) => void
   onRemoveRepositoryAlias: (repository: Repository) => void
+  onPinRepository: (repository: Repositoryish) => void
+  onUnpinRepository: (repository: Repositoryish) => void
 }
 
 export const generateRepositoryListContextMenu = (
@@ -37,6 +40,7 @@ export const generateRepositoryListContextMenu = (
     : DefaultShellLabel
 
   const items: ReadonlyArray<IMenuItem> = [
+    ...buildPinMenuItem(config),
     ...buildAliasMenuItems(config),
     {
       label: __DARWIN__ ? 'Copy Repo Name' : 'Copy repo name',
@@ -75,6 +79,37 @@ export const generateRepositoryListContextMenu = (
   ]
 
   return items
+}
+
+const buildPinMenuItem = (
+  config: IRepositoryListItemContextMenuConfig
+): ReadonlyArray<IMenuItem> => {
+  const { repository } = config
+
+  if (!(repository instanceof Repository)) {
+    return []
+  }
+
+  const pinned = config.pinnedRepositories.includes(repository.id)
+
+  const item = {
+    label: pinned
+      ? __DARWIN__
+        ? 'Unpin Repo'
+        : 'Unpin repo'
+      : __DARWIN__
+      ? 'Pin Repo'
+      : 'Pin repo',
+    action: () => {
+      if (pinned) {
+        config.onUnpinRepository(repository)
+      } else {
+        config.onPinRepository(repository)
+      }
+    },
+  }
+
+  return [item]
 }
 
 const buildAliasMenuItems = (

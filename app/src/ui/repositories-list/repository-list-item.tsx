@@ -26,6 +26,9 @@ interface IRepositoryListItemProps {
 
   /** Number of uncommitted changes */
   readonly changedFilesCount: number
+
+  /** Whether this instance of the repository item is in the pinned repo list */
+  readonly inPinnedList: boolean
 }
 
 /** A repository item. */
@@ -56,6 +59,10 @@ export class RepositoryListItem extends React.Component<
     return (
       <div className="repository-list-item" ref={this.listItemRef}>
         <Tooltip target={this.listItemRef}>{this.renderTooltip()}</Tooltip>
+
+        {this.props.inPinnedList && (
+          <Octicon className="pinned-icon" symbol={octicons.pin} />
+        )}
 
         <Octicon
           className="icon-for-repository"
